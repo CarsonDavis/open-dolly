@@ -1,0 +1,5 @@
+read_flash_output/
+upgrade_firmware/
+*/__pycache__/*
+__pycache__/
+build/
