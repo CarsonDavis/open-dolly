@@ -11,6 +11,7 @@
 | Motor and drive system selection | `docs/research/slider-motor-selection/report.md` |
 | Vertical operation (motor sizing, brakes) | `docs/research/vertical-drive-motor-sizing/report.md` |
 | Linear motion system design | `docs/research/long-travel-linear-motion/report.md` |
+| Linear guide rail and extrusion selection | `docs/research/linear-guide-system/report.md` |
 | System architecture and design decisions | `docs/project/architecture.md` |
 | Board API protocol spec | `docs/project/board-api.md` |
 | Motion math library implementation plan | `docs/project/plans/plan-motion-math.md` |

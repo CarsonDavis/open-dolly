@@ -16,6 +16,7 @@
 | `adr/adr-001-microcontroller.md` | ADR: why ESP32-S3 over all alternatives | Compared 9 options; ESP32-S3 wins on Wi-Fi + CAN + USB-OTG + stepper HW + GPIO count in one chip; specific board: Espressif DevKitC-1 N8R8 or N32R16V; status: accepted |
 | `adr/adr-002-status-display.md` | ADR: optional on-board status display | SH1107 1.5" I2C OLED (default) or ST7789 SPI TFT (alternative); display is optional; status: accepted |
 | `adr/adr-003-linear-drive.md` | ADR: linear drive system, motor, and vertical operation | Payload spec (3.5kg real / 7kg design), torque equations for vertical, 4 drive options (belt/ball screw/lead screw/hybrid), motor analysis (NEMA 17 + EM brake recommended), self-locking analysis, thermal analysis, brake control hardware; status: exploring |
+| `adr/adr-004-linear-guide.md` | ADR: linear guide and rail system | MGN12H-CC on 2040 extrusion (tall orientation); rods ruled out (deflection at 1200mm); V-wheels ruled out (no inverted operation); all-orientation capable; 0.76mm deflection; 4040 upgrade path; status: accepted |
 
 ## Implementation Plans (`plans/`)
 
