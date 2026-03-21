@@ -2,6 +2,6 @@
 
 | Path | Purpose | Key Details |
 |------|---------|-------------|
-| `research/` | Deep research reports on gimbal control and related topics | Contains background sources + synthesized reports; two studies completed |
-| `project/` | Project planning and design docs | Empty — for architecture decisions, specs, and plans |
+| `research/` | Deep research reports on gimbal control, hardware selection, and motion systems | Has its own `INDEX.md`; six studies completed covering gimbal control, keyframe animation, competitive landscape, MCU selection, motor selection, and long-travel linear motion |
+| `project/` | Project planning and design docs | Has its own `INDEX.md`; architecture, board API spec |
 | `external/` | Third-party SDK source code and official documentation | Has its own `INDEX.md`; currently contains DJI R SDK |
