@@ -36,7 +36,7 @@
 | `tsconfig.base.json` | Shared TypeScript config | ES2022, Node16 modules, strict mode; extended by all workspace packages |
 | `shared/` | Shared TypeScript types (`@slider/shared`) | Board API types matching `board-api.md`; 6 modules: capabilities, state, trajectory, settings, errors, websocket |
 | `mock-server/` | Mock board server for UI development | Fastify 5 + WebSocket; implements full Board API; profiles: slider-only, slider-servo, slider-dji; CLI with --port, --profile, --latency flags |
-| `motion-math/` | Pure TypeScript motion math library | Catmull-Rom splines, SQUAD quaternion interpolation, cubic bezier easing, trajectory table generator; no external deps; 48 tests via Vitest |
+| `motion-math/` | Pure TypeScript motion math library | Has its own `INDEX.md`; Catmull-Rom splines, SQUAD quaternion interpolation, cubic bezier easing, trajectory table generator; no external deps; 49 tests via Vitest |
 | `docs/` | All documentation | Has its own `INDEX.md`; subdivided into `research/`, `project/`, `external/` |
 | `web/` | SvelteKit web UI for browser-based slider control | V1 complete: jog pad, keyframe capture, playback controls, settings page; SPA with adapter-static (180KB build); dark theme; imports from `@slider/shared` |
 | `firmware/` | ESP32-S3 firmware (PlatformIO) | Has its own `INDEX.md`; DJI CAN lib in `lib/dji_can/`; all Board API endpoints implemented; 7 native test suites |

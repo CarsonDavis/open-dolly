@@ -1,7 +1,7 @@
 # Motion Math Library — Implementation Plan
 
-*Status: draft*
-*Last updated: 2026-03-20*
+*Status: active*
+*Last updated: 2026-03-21*
 
 This document specifies a pure TypeScript motion math library that runs in the browser. It takes user-defined keyframes and timing configuration, and produces dense trajectory point tables for upload to the board via `POST /api/trajectory`.
 
