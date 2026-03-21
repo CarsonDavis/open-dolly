@@ -4,7 +4,8 @@
 
 | Path | Purpose | Key Details |
 |------|---------|-------------|
-| `vision/` | Product vision documents | `initial-vision.md` (original concept, UX goals, versioning roadmap) and `v2-ui-vision.md` (V2 UI deep dive: curve editing, timeline view, buffers, research tasks, open design questions); status: active/draft |
+| `roadmap.md` | Version roadmap (V1/V2/V3) | V1 complete (all software); V2 in design (transition editing, curve editor, timeline with scrub, control panel, buffers); V3 future (loop mode, save/load, visual preview, move test, shot templates, target tracking); status: active |
+| `vision/` | Product vision documents | `initial-vision.md` (original concept, UX goals) and `v2-ui-vision.md` (V2 UI deep dive: transition simple view, per-axis curve editor, timeline with scrub, buffers, control panel modes, keyframe interaction; R1-R4 research complete); status: active/draft |
 | `architecture.md` | System architecture and design principles | Hybrid trajectory model, layer diagram, modularity boundaries; status: draft |
 | `board-api.md` | Board API specification (REST + WebSocket) | Hardware-agnostic JSON protocol; capabilities discovery, trajectory upload, real-time jog/telemetry; 6 states (idle/moving/playing/paused/homing/error); settings, camera trigger events; status: draft |
 | `bom.md` | Bill of materials with cost estimates | 4 build tiers from $105 (slider-only) to $680 (slider + DJI RS 4); GPIO pin budget; power architecture; optional add-ons; status: draft |

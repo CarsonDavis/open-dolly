@@ -18,27 +18,31 @@ The goal is to make the keyframe workflow feel like working in Premiere or After
 
 ### Research
 
-These should be completed before writing functional requirements or wireframes.
+All research tasks are complete. Results in [`docs/research/slider-ui-ux/`](../../research/slider-ui-ux/report.md).
 
-- [ ] **R1: Professional slider UI survey.** Study professional-grade camera slider and motion control software UIs. Focus on products where real thought has gone into UX — not hobby projects. Key targets:
+- [x] **R1: Professional slider UI survey.** Study professional-grade camera slider and motion control software UIs. Focus on products where real thought has gone into UX — not hobby projects. Key targets:
   - iFootage / edelkrone slider app (closest to what we're building)
   - Dragonframe (stop motion, but excellent keyframe/timeline UI)
   - edelkrone HTTP SDK documentation
   - Any other commercial slider apps with notable UX
   - Deliverable: summary of each product's UI model, what it does well, screenshots/screen recordings where possible
+  - **Result:** edelkrone, iFootage Moco, Rhino Arc II, Dragonframe ARC. See `background-slider-apps.md`.
 
-- [ ] **R2: Critical reviews and missing features.** Search for reviews, forum posts, Reddit threads, and YouTube comments where users of slider software (especially iFootage/edelkrone) describe features they wish existed or pain points with the current UI. We want to know what the market wants but doesn't have.
+- [x] **R2: Critical reviews and missing features.** Search for reviews, forum posts, Reddit threads, and YouTube comments where users of slider software (especially iFootage/edelkrone) describe features they wish existed or pain points with the current UI. We want to know what the market wants but doesn't have.
   - Deliverable: categorized list of user complaints and feature requests with sources
+  - **Result:** Covered in R1. Bluetooth drops are the #1 complaint; iFootage's per-axis graph editor is "too slow"; no one has shipped reliable curve editing on mobile.
 
-- [ ] **R3: Slider workflow tutorials.** Find tutorials (YouTube, blog posts) where experienced cinematographers explain how they actually use camera sliders — how they plan moves, how they set up keyframes, what their workflow looks like from concept to final shot. We need to understand real usage patterns so we design for how people actually work, not how we imagine they work.
+- [x] **R3: Slider workflow tutorials.** Find tutorials (YouTube, blog posts) where experienced cinematographers explain how they actually use camera sliders — how they plan moves, how they set up keyframes, what their workflow looks like from concept to final shot. We need to understand real usage patterns so we design for how people actually work, not how we imagine they work.
   - Deliverable: summary of common workflows, pain points, and tricks users employ
+  - **Result:** Real-world workflows, common moves, solo vs crew patterns. See `background-workflows.md`.
 
-- [ ] **R4: Animation/curve editor UI patterns.** Study how professional creative software handles curve editing and timeline interaction. Specific references called out in the notes:
+- [x] **R4: Animation/curve editor UI patterns.** Study how professional creative software handles curve editing and timeline interaction. Specific references called out in the notes:
   - **Premiere Pro** — volume keyframes on a clip (click a line, drag to create a curve, the curve maps to an equation)
   - **Photoshop** — Curves adjustment dialog (click to add control points, drag to reshape)
   - **After Effects** — keyframe graph editor (value graph and speed graph)
   - CSS `cubic-bezier()` editors (e.g. cubic-bezier.com)
   - Deliverable: interaction model comparison — how each tool handles adding points, reshaping curves, constraining edits, and previewing results
+  - **Result:** AE, Premiere, Photoshop Curves, Blender, Theatre.js, web-based editors. See `background-curve-editors.md`.
 
 ### Documentation
 
@@ -75,7 +79,9 @@ This is the card-based view — an evolution of the current V1 UI. It works well
 
 **Keyframe cards:**
 - Each card shows a brief summary of all axis values for that keyframe (e.g., "Pan 45.0° | Tilt -10.0° | Slide 500mm")
-- Clicking a keyframe selects it — the control panel updates to show that keyframe's values and the physical system moves to that position (in interactive mode)
+- Clicking a keyframe **selects** it — the hardware moves to that keyframe's position (in interactive mode), and the control panel reflects those values
+- While a keyframe is selected, **jogging overwrites that keyframe's stored values** — this is how you fine-tune a keyframe after capture
+- Tapping elsewhere (or a deselect action) returns to **free jog mode** — jogging moves the hardware without affecting any stored keyframe, and "Generate Keyframe" captures a new one
 
 **Duration brackets:**
 - Between each pair of adjacent keyframes, a bracket (thin line with a number in the center) shows the transition duration in seconds
@@ -86,7 +92,7 @@ This is the card-based view — an evolution of the current V1 UI. It works well
 
 ### Timeline View
 
-A horizontal, multi-channel timeline showing the full sequence at once. This is primarily a desktop feature — it may not translate well to phone screens (open question).
+A horizontal, multi-channel timeline showing the full sequence at once.
 
 **Layout:**
 - Left-to-right timeline spanning the full duration of the sequence
@@ -101,12 +107,16 @@ A horizontal, multi-channel timeline showing the full sequence at once. This is 
 - Example: three keyframes with transitions of 5s, 10s, 5s. Drag the middle keyframe earlier so the first transition becomes 2.5s — the second transition automatically becomes 12.5s, and the third stays 5s
 - Edit curves directly on the timeline channels (same interaction as the curve editor, but inline)
 
-**Simultaneous preview:**
-- This is a v3 feature, not v2
-- The timeline is at the bottom of the screen
-- A live preview of the animation can play at the top — so you can see the actual motion while looking at the timeline
-- this is an open question...what constitutes a preview
-- i think that maybe we can create a vector representation of a gimbal with the axises and show it move across the screen
+**Scrub preview (V2):**
+- The timeline has a draggable **playhead** (vertical line showing current time position)
+- Dragging the playhead sends `scrub` commands to the board — the physical hardware moves to the corresponding trajectory position in real-time
+- This lets the user verify any point in the move without running the full playback
+- The firmware already supports scrub via binary-search interpolation on the uploaded trajectory
+
+**Visual animation preview (V3):**
+- A live visual preview of the animation at the top of the screen while the timeline is at the bottom
+- Open question: what does this look like? Options: vector representation of the gimbal/slider moving, schematic overhead view, or just the physical hardware moving via scrub
+- Deferred to V3
 
 **Differences from Keyframe View:**
 - Timeline view uses drag-based timing; keyframe view uses typed numeric input
@@ -137,21 +147,20 @@ When you change a value in the control panel (interactive mode), the system move
 - The board reports min and max speeds per axis, so the UI knows what range is valid
 
 
-### Increment Controls
+### Movement Controls
 
-The UI needs to support both coarse positioning (get roughly in the right area) and fine positioning (nail the exact framing). The approach differs by axis type:
+The user can toggle between two control modes for via a switch in the control panel:
 
-**Linear axes (slider):**
-- Two increment buttons: +1 mm (fine) and +10 mm (coarse) in each direction
-- Between these two increments you can reach any position efficiently
-- For ultra-precise work: type in an exact value (e.g., 101.356 mm)
+**Position mode:** A line/bar representing the full range of the axis (e.g., 0–900mm for slide, -180° to +180° for pan). Clicking anywhere on the line jumps the hardware to that position. Shows the current position as a marker. Good for quickly jumping to a known position.
 
-**Rotational axes (pan, tilt, roll):**
-- Two increment button: +1° in each direction, +15°
-- Snap to 15 degree increments is default, with small button to disable
-- For precision: type in an exact value (e.g., 1.53°)
+**Jog mode (default):** A bidirectional drag control. Sliding left/right adjusts the axis, with speed proportional to how far the user drags from center. 
 
-**Precision constraints:**
+Both modes share:
+- **Fine/coarse increment buttons** at each end of the control — for linear axes: +1 mm (fine) and +10 mm (coarse); for rotational axes: +1° (fine) and +15° (coarse)
+- **Typed input field** — tap the current value readout to type an exact position (e.g., 101.356 mm, 1.53°)
+
+### Precision Constraints
+
 - The board reports the actual resolution of each axis (determined by motor steps, microstepping, gear ratios)
 - The UI enforces this — you cannot type in precision that the hardware can't achieve
 - Input values are rounded/snapped to the nearest achievable position
@@ -184,25 +193,32 @@ This section walks through the primary user workflow in detail.
 
 1. User continues adjusting the control panel to find the next position.
 2. They press "Generate Keyframe" again. Now two keyframe cards are visible.
-3. At this point the system doesn't know how long the transition should take. A flashing/highlighted box appears between the two keyframes prompting the user to enter a duration in seconds.
-4. The user types in the duration (e.g., "10"). The precision of the input is bounded by system capabilities.
+3. The control panel (bottom tray) automatically appears showing the **transition simple view** for the new transition. This view has:
+   - A **duration input** field (e.g., "10" seconds). This is the primary input.
+   - Below the duration, a **greyed-out speed indicator** showing the derived speed for each axis that changes between the two keyframes — e.g., "125 mm/s" for slide, "4.5 °/s" for pan. Only axes with a delta are shown; if only rotational axes change, no mm/s appears.
+   - The speed indicators are **clickable** — tapping one switches that axis to speed-based input, and the duration auto-adjusts to match. This lets the user think in either duration or speed, whichever is more natural for the move.
+   - An **"Advanced"** button in the top-right corner opens the full per-axis curve editor (see Editing Transition Curves below).
+4. **Duration entry is blocking.** The user must enter a duration (or set a speed that derives one) before they can navigate away or capture another keyframe. This ensures every transition has a defined duration.
 5. By default, the transition is linear on all axes — constant speed from position A to position B.
 
 ### Editing Transition Curves
 
-1. The user clicks the duration bracket between two keyframes.
-2. The control panel area transforms: instead of position controls, it now shows **per-axis curve editors** — one mini-timeline per axis.
-3. Each mini-timeline spans the duration of the transition (e.g., 10 seconds, shown at the bottom).
-4. Initially each shows a straight line from bottom-left to top-right (linear interpolation).
-5. The user can:
+The curve editor is accessed from the transition simple view by pressing the **"Advanced"** button. It only controls the timing/easing of the transition — you cannot modify keyframe positions from here.
+
+1. The control panel area transforms into a **stacked per-axis curve editor** (Premiere-style inline lanes). One lane per axis, all visible simultaneously.
+2. Each lane spans the duration of the transition (e.g., 10 seconds, shown at the bottom).
+3. Initially each shows a straight line from bottom-left to top-right (linear interpolation).
+4. The user can:
    - **Click on the curve** to add a control point
    - **Drag a control point** to reshape the curve
    - **Drag from the left edge** to delay when that axis starts moving (the line stays flat at the bottom, then ramps up)
    - **Drag from the middle** to change the shape of the curve (ease in, ease out, S-curve)
    - Add multiple control points to create complex curve shapes
-6. The curve editing model is **Photoshop Curves style** — not preset-based, but direct point manipulation.
-7. Each curve is backed by a mathematical equation. The points the user creates define that equation. This is the same concept as Premiere's volume keyframe line — the visual line you drag corresponds to an underlying function.
-8. A "Done" / "Back" button exits curve editing and returns to the position control panel.
+5. The curve editing model is **Photoshop Curves style** — not preset-based, but direct point manipulation.
+6. Each curve is backed by a mathematical equation. The points the user creates define that equation. This is the same concept as Premiere's volume keyframe line — the visual line you drag corresponds to an underlying function.
+7. A "Done" / "Back" button exits curve editing and returns to the position control panel.
+
+**Multi-axis linking:** Each axis lane has a **checkbox**. When multiple checkboxes are selected, the system asks "Edit multiple axes at once?" If confirmed, editing the curve on any checked axis applies the same curve shape to all checked axes. This is useful for rotation axes that should move together (e.g., pan and tilt tracking a subject) without having to draw the same curve repeatedly.
 
 **Example — delayed pan:**
 - 10-second move, 4 axes
@@ -361,31 +377,37 @@ The dev server (Vite) must be accessible from a phone on the same Wi-Fi network.
 
 ## Speed-Based Duration Input
 
-### Considered and Partially Deferred
+### Integrated into Transition Simple View (V2)
 
-The idea: instead of typing "this transition takes 10 seconds," the user could say "move the slider at 50 mm/s" and the system calculates the duration based on the distance.
+The transition simple view shows duration as the primary input, with derived per-axis speeds displayed below it. Each speed indicator is clickable to switch to speed-based input for that axis, which auto-adjusts the duration.
 
-**Why it's complicated:** A transition involves multiple axes. If you're changing the slider position and the pan angle, what does "50 mm/s" mean for the pan axis? It only makes sense for the axis that's actually measured in mm. If only the pan changes between two keyframes and the slider doesn't move at all, a mm/s input is meaningless.
+**How it works:**
+- Duration is the primary input. Below it, each axis that has a delta between the two keyframes shows its derived speed in greyed-out text (e.g., "125 mm/s" for slide, "4.5 °/s" for pan).
+- Axes with no change between the keyframes are not shown.
+- Clicking a speed indicator makes that axis's speed the primary input — the user edits the speed value, and the duration auto-adjusts. All other axes' speeds update accordingly.
+- Only one input mode is active at a time: either duration-primary or speed-primary for a specific axis.
 
-**Partial approach:** Allow speed-based input only when:
-- The axis in question actually has a delta between the two keyframes
-- The axis type matches the unit (mm/s for linear, °/s for rotation)
+**Why per-axis:** A transition involves multiple axes with different units. "50 mm/s" is meaningful for slide but not for pan. Each axis shows its own speed in its own unit (mm/s for linear, °/s for rotation). The user picks which axis's speed to drive the duration from.
 
-**Current decision:** Write this down as explicitly not supported in V2. Revisit for V3 with the constraint that it must be smart enough to only offer speed-based input on axes where it makes sense.
+If an advanced curve has been created in the curves mode, then editing a single speed value will give a warning that this will erase the curve. If the user accepts, it puts that axis back to linear.
 
 ---
 
 ## Open Design Questions
 
-These need to be resolved during the research and requirements phases before implementation.
+### Resolved
 
-1. **Curve math model:** The current motion-math library uses single cubic-bezier easing functions. The curve editor envisions multi-point curves (like Photoshop curves). What's the right mathematical model? Multi-segment bezier? Cubic spline with user-defined control points? How does this map to the trajectory generator?
+1. **Curve math model:** Use **monotone Catmull-Rom interpolation** for progress curves. Interpolating (curve passes through user-placed control points, matching the Photoshop Curves mental model), monotone (prevents overshoot — critical for physical hardware), and already partially implemented in `@opendolly/motion-math`. The `generateTrajectory()` API needs to be extended to accept multi-point curve definitions per axis instead of single bezier presets. See research: `docs/research/slider-ui-ux/report.md` section 3.
 
-2. **Buffer calculation inputs:** How does the system estimate the inertia/stiffness needed for buffer calculations? Options: (a) user enters a stiffness parameter manually, (b) system derives it from hardware config (payload weight, motor torque), (c) system runs a calibration move and measures settling time. The first is simplest; the last is most accurate.
+2. **Jog + keyframes interaction:** Selecting a keyframe card moves hardware there; jogging while selected overwrites that keyframe. Deselecting returns to free jog mode for new keyframe capture.
 
-I think we figure this out from testing with actual hardware. We need to do some back of the envelope calculations in the interim.
+3. **Curve editor scope:** Curve editing only controls timing/easing. Keyframe positions are edited via the control panel, not the curve editor. The curve editor replaces the control panel area while open.
 
-3. **Simultaneous timeline + preview:** The notes describe "timeline at the bottom, animation at the top." What does the animation preview look like? A 3D visualization? A schematic overhead view of the slider? Just live video from the camera? Or just the physical hardware moving? This is definitely a v3 feature.
+### Still Open
+
+5. **Buffer calculation inputs:** How does the system estimate the inertia/stiffness needed for buffer calculations? Options: (a) user enters a stiffness parameter manually, (b) system derives it from hardware config (payload weight, motor torque), (c) system runs a calibration move and measures settling time. The first is simplest; the last is most accurate. To be determined from testing with actual hardware.
+
+6. **Simultaneous timeline + preview (V3):** What does the animation preview look like? A 3D visualization? A schematic overhead view of the slider? Just live video from the camera? Or just the physical hardware moving? Deferred to V3.
 
 ---
 
@@ -401,7 +423,7 @@ The V2 UI builds on the existing V1 codebase in `web/`. Key areas of change:
 | `KeyframeList` / `KeyframeCard` | Duration brackets between cards; click-to-edit transitions; richer card display |
 | New: `CurveEditor` component | Per-axis curve editor with point manipulation (does not exist in V1) |
 | New: `TimelineView` component | Multi-channel horizontal timeline with drag-to-retime (does not exist in V1) |
-| `JogControl` | May evolve into the V2 control panel with increment buttons (fine/coarse) and typed input |
+| `JogControl` | Evolves into V2 control panel: two modes (position bar + jog) with toggle, fine/coarse increment buttons, typed input per axis |
 | `@opendolly/shared` | Transition type needs to be added to the shared types |
 | Board API | May need to communicate axis resolution/precision so the UI can enforce valid inputs |
 

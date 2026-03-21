@@ -18,7 +18,9 @@
 | Motion math library code | `motion-math/` |
 | Mock board server implementation plan | `docs/project/plans/plan-mock-server.md` |
 | Mock board server code | `mock-server/` |
+| Project roadmap (V1/V2/V3) | `docs/project/roadmap.md` |
 | Product vision and V2 UI design | `docs/project/vision/` |
+| V2 UI/UX research | `docs/research/slider-ui-ux/report.md` |
 | Web UI implementation plan | `docs/project/plans/plan-web-ui.md` |
 | Web UI code | `web/` |
 | DJI CAN protocol library implementation plan | `docs/project/plans/plan-dji-can.md` |
