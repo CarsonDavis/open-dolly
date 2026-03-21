@@ -125,7 +125,7 @@ The control panel has two modes:
 
 **Interactive mode (default):** When you adjust values in the control panel, the physical system moves in real time. The control panel always reflects the actual position of the hardware as reported by the board's sensors. This is the default because the primary workflow is: move the camera to where you want it, then capture a keyframe.
 
-**Static editing mode:** Edit keyframe values theoretically without moving the hardware. Useful when you're not connected to a board or when you want to plan a sequence without executing it. The control panel values are the source of truth (not sensor readings).
+**Static editing mode:** Edit keyframe values theoretically without moving the hardware. Useful when you're not connected to a board or when you want to plan a sequence without executing it. The control panel values are the source of truth for creating keyframes (not sensor readings).
 
 ### Movement Speed
 
@@ -135,7 +135,7 @@ When you change a value in the control panel (interactive mode), the system move
 - **Configurable per-axis** in user preferences/settings — you can set the slider to move at 100% max speed while the gimbal moves at 25%
 - The speed setting is for **manual repositioning only** — it has no relationship to the speed used during keyframe playback
 - The board reports min and max speeds per axis, so the UI knows what range is valid
-- V1 scope: just the per-axis percentage setting in preferences. V2 could add inline speed controls during positioning (e.g., a clickable speed readout in mm/s or °/s)
+
 
 ### Increment Controls
 
@@ -144,10 +144,11 @@ The UI needs to support both coarse positioning (get roughly in the right area) 
 **Linear axes (slider):**
 - Two increment buttons: +1 mm (fine) and +10 mm (coarse) in each direction
 - Between these two increments you can reach any position efficiently
-- For ultra-precise work: type in an exact value (e.g., 1.356 mm)
+- For ultra-precise work: type in an exact value (e.g., 101.356 mm)
 
 **Rotational axes (pan, tilt, roll):**
-- Increment button: +1° in each direction
+- Two increment button: +1° in each direction, +15°
+- Snap to 15 degree increments is default, with small button to disable
 - For precision: type in an exact value (e.g., 1.53°)
 
 **Precision constraints:**
@@ -207,13 +208,16 @@ This section walks through the primary user workflow in detail.
 - 10-second move, 4 axes
 - User wants the pan to not start until 5 seconds in
 - Goes to the pan channel in the curve editor
-- Clicks a point at the 5-second mark on the flat bottom of the line
-- The line stays flat (no movement) from 0s to 5s, then curves up from 5s to 10s
+- Clicks a point at the 5-second mark on the line
+- Drags this point down to the bottom
+- This results in a flat line for 5 seconds and then a straight line from the bottom to the top right
+- The line stays flat (no movement) from 0s to 5s, then goes straight up from 5s to 10s
 - All other axes move for the full 10 seconds as normal
 
 **Example — ease into a stop:**
 - User wants the slide to decelerate smoothly into the final position
-- Drags the right end of the slide curve down so it flattens out as it approaches the end
+- Click on the middle of the line
+- Drag the line up and it will curve, making a steep curve at the beginning and a gentle curve at the end
 - Result: fast start, gentle coast to a stop
 
 ### Subsequent Keyframes
@@ -247,7 +251,7 @@ This is distinct from a keyframe, which is just a position snapshot. The transit
 
 ### The Problem
 
-When the system arrives at a keyframe at speed, physical inertia causes the rig to flex and rebound. The camera jitters at the stop point. This is especially noticeable on fast moves or with heavy payloads.
+When the system arrives at a keyframe at speed, physical inertia may causes the rig to flex and rebound. The camera jitters at the stop point. This would be especially noticeable on fast moves or with heavy payloads.
 
 ### Current Workaround (No Software Support)
 
@@ -264,14 +268,14 @@ An advanced setting that automates the deceleration padding:
 
 **How it works:**
 1. User enables "Buffers" in settings
-2. When a keyframe transition is generated, the system automatically adds extra travel before and/or after the keyframe
+2. When a keyframe transition is generated, the system automatically adds extra travel before or after the keyframe
 3. The buffer is calculated based on:
    - The speed of the move (how fast each axis is traveling as it approaches the keyframe)
    - An estimate of the system's inertia / stiffness (could be a user-configured value or derived from hardware specs)
    - The physical room available (how far the axis is from its limits)
 
 **Buffer rules:**
-- Buffers are exactly **1 second** in duration on each side — this makes it trivial to trim in editing software (just cut the first and last second of the clip)
+- Buffers default would be exactly **1 second** in duration on each side — this makes it trivial to trim in editing software (just cut the first and last second of the clip)
 - The buffer duration should be configurable for users with stiff or flexible setups
 - The system must check if there's physical room for the buffer:
   - If the slider is at the far left end of the rail, there's no room for a pre-buffer on that axis
@@ -287,6 +291,8 @@ An advanced setting that automates the deceleration padding:
 
 **Relationship to video editing:** The reason for exact 1-second buffers is that the user knows they're going to import this footage into Premiere/Resolve/Final Cut and they need to trim the settling period. A 1-second buffer is a clean, predictable cut point. The system should make the buffer boundaries obvious — no ambiguity about where the "real" move starts and ends.
 
+This idea that we have a 1 second buffer might make it unneccessary to actually do calculations, but there is always the question of what distance is travelled in that 1 second.
+
 ---
 
 ## Responsive Layout
@@ -298,15 +304,15 @@ The UI must work on both phones and desktop browsers, with the same codebase ada
 ```
 ┌─────────────────────────┐
 │                         │
-│    Keyframe cards        │
-│    (vertical stack,     │
-│     scrollable)         │
+│      Keyframe cards     │
+│      (vertical stack,   │
+│       scrollable)       │
 │                         │
-│    [KF 1]               │
-│    ── 5.0s ──           │
-│    [KF 2]               │
-│    ── 10.0s ──          │
-│    [KF 3]               │
+│       |- [KF 1]         │
+│   5s -|                 │
+│       |- [KF 2]         │
+│  10s -|                 │
+│       |- [KF 3]         │
 │                         │
 ├─────────────────────────┤
 │  Control panel (tray)   │
@@ -332,7 +338,7 @@ The UI must work on both phones and desktop browsers, with the same codebase ada
 │              │    or vertical   │
 │  Axis        │    scroll)       │
 │  controls,   │                  │
-│  capture     │   [KF1] [KF2]   │
+│  capture     │   [KF1] [KF2]    │
 │  button      │                  │
 │              │                  │
 └──────────────┴──────────────────┘
@@ -365,7 +371,7 @@ The idea: instead of typing "this transition takes 10 seconds," the user could s
 - The axis in question actually has a delta between the two keyframes
 - The axis type matches the unit (mm/s for linear, °/s for rotation)
 
-**Current decision:** Write this down as explicitly not supported in V1. Revisit for V2 with the constraint that it must be smart enough to only offer speed-based input on axes where it makes sense.
+**Current decision:** Write this down as explicitly not supported in V2. Revisit for V3 with the constraint that it must be smart enough to only offer speed-based input on axes where it makes sense.
 
 ---
 
@@ -375,17 +381,11 @@ These need to be resolved during the research and requirements phases before imp
 
 1. **Curve math model:** The current motion-math library uses single cubic-bezier easing functions. The curve editor envisions multi-point curves (like Photoshop curves). What's the right mathematical model? Multi-segment bezier? Cubic spline with user-defined control points? How does this map to the trajectory generator?
 
-2. **Controls placement — shared vs. inline:** When editing a keyframe's position, should there be a single shared control panel at the bottom that updates all keyframes (click keyframe → controls update), or should each keyframe card have its own inline controls? Both have tradeoffs. The shared approach saves screen space; inline gives context. Could prototype both.
+2. **Buffer calculation inputs:** How does the system estimate the inertia/stiffness needed for buffer calculations? Options: (a) user enters a stiffness parameter manually, (b) system derives it from hardware config (payload weight, motor torque), (c) system runs a calibration move and measures settling time. The first is simplest; the last is most accurate.
 
-3. **Timeline view on phone:** Does the timeline view make sense on a phone screen at all, or is it strictly desktop? The horizontal space on a phone in portrait mode is very limited. Landscape might work but competes with the split-screen keyframe layout.
+I think we figure this out from testing with actual hardware. We need to do some back of the envelope calculations in the interim.
 
-4. **Buffer calculation inputs:** How does the system estimate the inertia/stiffness needed for buffer calculations? Options: (a) user enters a stiffness parameter manually, (b) system derives it from hardware config (payload weight, motor torque), (c) system runs a calibration move and measures settling time. The first is simplest; the last is most accurate.
-
-5. **Curve editor point limits:** The notes say "you can't add an infinite number of points but you can add a whole bunch." What's the practical limit? This depends on the math model. A 10-point bezier might be overkill; a 4-point one might be too limiting.
-
-6. **Live preview during curve editing:** When editing transition curves, should the system play a preview of the motion in real time? This would mean the board executes a short trajectory segment repeatedly while you tweak. Very powerful UX but adds complexity.
-
-7. **Simultaneous timeline + preview:** The notes describe "timeline at the bottom, animation at the top." What does the animation preview look like? A 3D visualization? A schematic overhead view of the slider? Just live video from the camera? Or just the physical hardware moving?
+3. **Simultaneous timeline + preview:** The notes describe "timeline at the bottom, animation at the top." What does the animation preview look like? A 3D visualization? A schematic overhead view of the slider? Just live video from the camera? Or just the physical hardware moving? This is definitely a v3 feature.
 
 ---
 
@@ -409,14 +409,14 @@ The V2 UI builds on the existing V1 codebase in `web/`. Key areas of change:
 
 ## Source Notes
 
-These notes were captured via voice transcription on 2026-03-21 and are preserved in their original form:
+These notes were captured via voice transcription on 2026-03-21 and are preserved in their original form in `voice-notes/`:
 
 | File | Primary Topics |
 |------|---------------|
-| `2026-03-21T081716-0500.md` | Motivation, professional UI survey, iFootage/edelkrone reference, critical reviews |
-| `2026-03-21T082723-0500.md` | Functional requirements approach, keyframe vs timeline view, transition data model, curve editing (Premiere/Photoshop model), buffer concept, user stories |
-| `2026-03-21T083025-0500.md` | Buffer feature detail — auto-generation, 1-second duration, physical room checks, warnings, settings |
-| `2026-03-21T083725-0500.md` | Keyframe view UI — duration brackets, interactive vs static mode, control panel position, firmware config |
-| `2026-03-21T084311-0500.md` | Movement speed (25% default), increment controls (1mm/10mm, 1°), precision constraints, typed input |
-| `2026-03-21T085826-0500.md` | Speed settings as V1 feature, keyframe creation walkthrough, curve editor detail, timeline view detail, dragging keyframes to retime |
-| `2026-03-21T090501-0500.md` | Responsive layout (portrait vs landscape split), dev server phone access, speed-based duration (partially deferred) |
+| `voice-notes/2026-03-21T081716-0500.md` | Motivation, professional UI survey, iFootage/edelkrone reference, critical reviews |
+| `voice-notes/2026-03-21T082723-0500.md` | Functional requirements approach, keyframe vs timeline view, transition data model, curve editing (Premiere/Photoshop model), buffer concept, user stories |
+| `voice-notes/2026-03-21T083025-0500.md` | Buffer feature detail — auto-generation, 1-second duration, physical room checks, warnings, settings |
+| `voice-notes/2026-03-21T083725-0500.md` | Keyframe view UI — duration brackets, interactive vs static mode, control panel position, firmware config |
+| `voice-notes/2026-03-21T084311-0500.md` | Movement speed (25% default), increment controls (1mm/10mm, 1°), precision constraints, typed input |
+| `voice-notes/2026-03-21T085826-0500.md` | Speed settings as V1 feature, keyframe creation walkthrough, curve editor detail, timeline view detail, dragging keyframes to retime |
+| `voice-notes/2026-03-21T090501-0500.md` | Responsive layout (portrait vs landscape split), dev server phone access, speed-based duration (partially deferred) |
