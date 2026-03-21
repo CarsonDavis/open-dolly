@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AxisCapability } from '@slider/shared';
+	import type { AxisCapability } from '@opendolly/shared';
 	import { formatAxisValue } from '$lib/utils/format';
 
 	interface Props {

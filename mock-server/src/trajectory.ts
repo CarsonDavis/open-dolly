@@ -4,7 +4,7 @@ import type {
   TrajectoryEvent,
   TrajectoryPoint,
   Capabilities,
-} from "@slider/shared";
+} from "@opendolly/shared";
 
 export interface StoredTrajectory {
   id: string;

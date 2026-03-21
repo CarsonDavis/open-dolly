@@ -11,10 +11,10 @@ All messages are JSON. The board serves both the REST and WebSocket endpoints ov
 
 ## Connection & Discovery
 
-- **AP mode:** The board creates its own WiFi network. The SSID comes from the `ap_ssid` setting (default `Slider-XXXX`, where `XXXX` is derived from the board's MAC address).
+- **AP mode:** The board creates its own WiFi network. The SSID comes from the `ap_ssid` setting (default `OpenDolly-XXXX`, where `XXXX` is derived from the board's MAC address).
 - **Board IP:** Always `192.168.4.1` in AP mode.
 - **Captive portal:** When a device joins the AP, it is automatically redirected to the web UI.
-- **mDNS:** The board advertises as `slider.local` (configurable via the `device_name` setting, e.g. a board named `Slider-A3F2` advertises as `slider-a3f2.local`).
+- **mDNS:** The board advertises as `opendolly.local` (configurable via the `device_name` setting, e.g. a board named `Dolly-A3F2` advertises as `dolly-a3f2.local`).
 
 ---
 
@@ -135,8 +135,8 @@ Returns current board settings.
 
 ```json
 {
-  "device_name": "Slider-A3F2",
-  "ap_ssid": "Slider-A3F2",
+  "device_name": "Dolly-A3F2",
+  "ap_ssid": "Dolly-A3F2",
   "ap_password": "",
   "telemetry_rate_hz": 50,
   "jog_sensitivity": 1.0,
@@ -163,8 +163,8 @@ Settings are persisted to NVS (survive power cycles). The board may need to rest
 
 ```json
 {
-  "device_name": "Slider-A3F2",
-  "ap_ssid": "Slider-A3F2",
+  "device_name": "Dolly-A3F2",
+  "ap_ssid": "Dolly-A3F2",
   "ap_password": "my-secret",
   "telemetry_rate_hz": 25,
   "jog_sensitivity": 1.0,

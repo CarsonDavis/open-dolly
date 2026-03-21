@@ -1,5 +1,5 @@
 {
-  "name": "@slider/mock-server",
+  "name": "@opendolly/mock-server",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@slider/shared": "*",
+    "@opendolly/shared": "*",
     "fastify": "^5.0.0",
     "@fastify/cors": "^11.0.0",
     "@fastify/websocket": "^11.0.0",

@@ -4,7 +4,7 @@ import type {
 	StateEvent,
 	CompleteEvent,
 	ErrorEvent
-} from '@slider/shared';
+} from '@opendolly/shared';
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 

@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { TrajectoryPoint } from '@slider/shared';
+import type { TrajectoryPoint } from '@opendolly/shared';
 
 export type TrajectoryState = 'empty' | 'computing' | 'computed' | 'uploading' | 'uploaded' | 'error';
 

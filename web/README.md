@@ -108,7 +108,7 @@ What's implemented:
 - Jog control (2D touch pad with axis pair selector, per-axis sliders)
 - Live axis readouts from telemetry
 - Save/manage keyframes (capture, reorder, rename, delete, go-to)
-- Trajectory generation with easing presets (via `@slider/motion-math`)
+- Trajectory generation with easing presets (via `@opendolly/motion-math`)
 - Playback control (play, pause, resume, stop) with progress bar
 - Status display (connection, system state, battery, errors)
 - Settings page (device name, WiFi AP, telemetry rate, jog sensitivity)

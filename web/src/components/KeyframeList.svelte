@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AxisCapability } from '@slider/shared';
+	import type { AxisCapability } from '@opendolly/shared';
 	import { keyframeStore } from '$lib/stores/keyframes';
 	import { positionStore } from '$lib/stores/position';
 	import { connectionStore, isConnected } from '$lib/stores/connection';

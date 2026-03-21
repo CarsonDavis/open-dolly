@@ -278,9 +278,9 @@ static void handleTrajectoryStatus(AsyncWebServerRequest* request) {
 
 // Settings stored in NVS — for now, use defaults in memory
 struct DeviceSettings {
-    char device_name[32] = "slider";
-    char ap_ssid[32] = "Slider-AP";
-    char ap_password[32] = "slider1234";
+    char device_name[32] = "opendolly";
+    char ap_ssid[32] = "OpenDolly-AP";
+    char ap_password[32] = "opendolly";
     uint16_t telemetry_rate_hz = TELEMETRY_RATE_HZ;
     float jog_sensitivity = 1.0f;
     bool home_on_boot = false;

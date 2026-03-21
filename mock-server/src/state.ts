@@ -3,7 +3,7 @@ import type {
   Position,
   Capabilities,
   AxisCapability,
-} from "@slider/shared";
+} from "@opendolly/shared";
 
 /**
  * Centralized system state. Owns current position, system state,

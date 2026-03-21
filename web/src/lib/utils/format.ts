@@ -1,4 +1,4 @@
-import type { AxisCapability } from '@slider/shared';
+import type { AxisCapability } from '@opendolly/shared';
 
 /** Format an axis value with its unit. e.g. "45.0°", "500.0mm" */
 export function formatAxisValue(value: number, axis: AxisCapability): string {

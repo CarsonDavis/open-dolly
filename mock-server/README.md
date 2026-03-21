@@ -132,4 +132,4 @@ src/
   websocket.ts    WebSocket command dispatch and state machine enforcement
 ```
 
-Types are imported from `@slider/shared` — the same types the web UI uses.
+Types are imported from `@opendolly/shared` — the same types the web UI uses.

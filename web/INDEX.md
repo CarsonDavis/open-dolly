@@ -1,12 +1,12 @@
 # Web UI Index
 
-SvelteKit 5 app (runes mode) for browser-based slider control. Builds to static HTML/JS/CSS (184KB) for ESP32 LittleFS flash. Imports `@slider/shared` for API types and `@slider/motion-math` for trajectory generation.
+SvelteKit 5 app (runes mode) for browser-based slider control. Builds to static HTML/JS/CSS (184KB) for ESP32 LittleFS flash. Imports `@opendolly/shared` for API types and `@opendolly/motion-math` for trajectory generation.
 
 ## Key Config
 
 | Path | Purpose | Key Details |
 |------|---------|-------------|
-| `package.json` | Package config (`@slider/web`) | Deps: `@slider/shared`, `@slider/motion-math`; devDeps: SvelteKit, adapter-static, vitest |
+| `package.json` | Package config (`@opendolly/web`) | Deps: `@opendolly/shared`, `@opendolly/motion-math`; devDeps: SvelteKit, adapter-static, vitest |
 | `svelte.config.js` | SvelteKit config | `adapter-static` with `fallback: 'index.html'` for SPA mode |
 | `vite.config.ts` | Vite config | Dev proxy: `/api` → `localhost:3001`, `/ws` → `ws://localhost:3001` |
 | `.env.development` | Dev environment vars | `VITE_BOARD_URL`, `VITE_BOARD_WS_URL` pointing to mock server |
@@ -29,7 +29,7 @@ SvelteKit 5 app (runes mode) for browser-based slider control. Builds to static 
 | `src/lib/stores/capabilities.ts` | Board capabilities (`GET /api/capabilities`) | Nullable writable; derived `axisNames` and `axisMap` for component convenience |
 | `src/lib/stores/position.ts` | Live axis positions | `Record<string, number>` updated from WebSocket position events at up to 50Hz |
 | `src/lib/stores/state.ts` | System state and playback tracking | Tracks `SystemState`, error details, trajectory ID, playback progress/elapsed, battery level; derived `isIdle`, `isPlaying`, `hasError` |
-| `src/lib/stores/keyframes.ts` | Saved keyframes (localStorage-backed) | Custom store with `add`, `remove`, `reorder`, `updateLabel`, `clear` methods; persists to `slider-keyframes` key |
+| `src/lib/stores/keyframes.ts` | Saved keyframes (localStorage-backed) | Custom store with `add`, `remove`, `reorder`, `updateLabel`, `clear` methods; persists to `opendolly-keyframes` key |
 | `src/lib/stores/trajectory.ts` | Trajectory computation/upload lifecycle | States: empty → computing → computed → uploading → uploaded; stores points array, duration, trajectory ID |
 
 ## Utilities
@@ -49,7 +49,7 @@ SvelteKit 5 app (runes mode) for browser-based slider control. Builds to static 
 | `src/components/AxisControl.svelte` | Single-axis slider with readout | Range slider sends `move_to` (absolute); click-to-edit numeric input; displays value with unit |
 | `src/components/KeyframeList.svelte` | Keyframe list manager | Capture disabled until position data received; go-to sends `move_to`; delete, reorder (up/down buttons) |
 | `src/components/KeyframeCard.svelte` | Single keyframe display | Inline-editable label, compact position summary, go-to/delete buttons, reorder arrows |
-| `src/components/PlaybackControls.svelte` | Trajectory generation and playback | Uses `@slider/motion-math` `generateTrajectory()` with easing presets; upload via REST; play/pause/resume/stop via WebSocket; progress bar from telemetry |
+| `src/components/PlaybackControls.svelte` | Trajectory generation and playback | Uses `@opendolly/motion-math` `generateTrajectory()` with easing presets; upload via REST; play/pause/resume/stop via WebSocket; progress bar from telemetry |
 | `src/components/TabBar.svelte` | Mobile tab navigation | Three tabs: Jog, Keyframes, Play |
 
 ## Routes

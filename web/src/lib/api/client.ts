@@ -7,7 +7,7 @@ import type {
 	Settings,
 	SettingsUpdate,
 	SettingsResponse
-} from '@slider/shared';
+} from '@opendolly/shared';
 
 export class BoardClient {
 	private baseUrl: string;

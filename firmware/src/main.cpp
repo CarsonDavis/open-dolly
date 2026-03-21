@@ -619,9 +619,9 @@ void setup() {
     uint8_t mac[6];
     esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP);
     char default_ssid[32];
-    snprintf(default_ssid, sizeof(default_ssid), "Slider-%02X%02X", mac[4], mac[5]);
+    snprintf(default_ssid, sizeof(default_ssid), "OpenDolly-%02X%02X", mac[4], mac[5]);
     const char* ssid = nvs_get_string("ap_ssid", default_ssid);
-    const char* password = nvs_get_string("ap_password", "slider1234");
+    const char* password = nvs_get_string("ap_password", "opendolly");
     WiFi.softAP(ssid, password);
     Serial.printf("AP SSID: %s\n", ssid);
     Serial.printf("AP IP: %s\n", WiFi.softAPIP().toString().c_str());
@@ -630,7 +630,7 @@ void setup() {
     dnsServer.start(53, "*", WiFi.softAPIP());
 
     // mDNS
-    const char* device_name = nvs_get_string("device_name", "slider");
+    const char* device_name = nvs_get_string("device_name", "opendolly");
     if (MDNS.begin(device_name)) {
         MDNS.addService("http", "tcp", 80);
         Serial.printf("mDNS: %s.local\n", device_name);

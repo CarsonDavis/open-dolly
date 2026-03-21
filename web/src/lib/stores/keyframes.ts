@@ -7,7 +7,7 @@ export interface Keyframe {
 	createdAt: number;
 }
 
-const STORAGE_KEY = 'slider-keyframes';
+const STORAGE_KEY = 'opendolly-keyframes';
 
 function loadKeyframes(): Keyframe[] {
 	if (typeof localStorage === 'undefined') return [];

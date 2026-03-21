@@ -1,5 +1,5 @@
 {
-  "name": "slider",
+  "name": "opendolly",
   "private": true,
   "workspaces": [
     "shared",

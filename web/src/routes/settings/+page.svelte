@@ -3,7 +3,7 @@
 	import { capabilitiesStore } from '$lib/stores/capabilities';
 	import { isConnected } from '$lib/stores/connection';
 	import { BoardClient } from '$lib/api/client';
-	import type { Settings } from '@slider/shared';
+	import type { Settings } from '@opendolly/shared';
 
 	let settings: Settings | null = $state(null);
 	let loading = $state(true);

@@ -5,7 +5,7 @@ import type {
   SettingsResponse,
   StatusResponse,
   TrajectoryUpload,
-} from "@slider/shared";
+} from "@opendolly/shared";
 import type { BoardState } from "./state.js";
 import { TrajectoryStore, TrajectoryValidationError } from "./trajectory.js";
 

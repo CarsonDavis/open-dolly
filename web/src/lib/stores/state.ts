@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import type { SystemState } from '@slider/shared';
+import type { SystemState } from '@opendolly/shared';
 
 export interface StateStoreValue {
 	state: SystemState;

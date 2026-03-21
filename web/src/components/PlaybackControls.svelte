@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Capabilities, TrajectoryPoint } from '@slider/shared';
-	import { generateTrajectory, type EasingPreset, type AxisInterpolation } from '@slider/motion-math';
+	import type { Capabilities, TrajectoryPoint } from '@opendolly/shared';
+	import { generateTrajectory, type EasingPreset, type AxisInterpolation } from '@opendolly/motion-math';
 	import { keyframeStore } from '$lib/stores/keyframes';
 	import { trajectoryStore } from '$lib/stores/trajectory';
 	import { stateStore, isIdle, isPlaying } from '$lib/stores/state';

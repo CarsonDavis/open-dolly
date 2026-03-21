@@ -1,4 +1,4 @@
-# Slider
+# OpenDolly
 
 Open-source motorized camera slider with gimbal control. One web interface for all axes of motion — slide, pan, tilt, roll. Define keyframes, shape the motion between them, hit play.
 

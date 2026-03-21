@@ -6,7 +6,7 @@ import type {
   SystemState,
   WsCommand,
   WsEvent,
-} from "@slider/shared";
+} from "@opendolly/shared";
 import type { BoardState } from "./state.js";
 import type { TrajectoryStore } from "./trajectory.js";
 import type { MotionSimulator } from "./motion.js";

@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import type { Capabilities, AxisCapability } from '@slider/shared';
+import type { Capabilities, AxisCapability } from '@opendolly/shared';
 
 export const capabilitiesStore = writable<Capabilities | null>(null);
 

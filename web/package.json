@@ -1,5 +1,5 @@
 {
-	"name": "@slider/web",
+	"name": "@opendolly/web",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -14,8 +14,8 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"@slider/shared": "*",
-		"@slider/motion-math": "*"
+		"@opendolly/shared": "*",
+		"@opendolly/motion-math": "*"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^3.0.0",

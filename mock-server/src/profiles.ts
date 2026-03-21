@@ -1,4 +1,4 @@
-import type { Capabilities } from "@slider/shared";
+import type { Capabilities } from "@opendolly/shared";
 
 export type ProfileName = "slider-only" | "slider-servo" | "slider-dji";
 

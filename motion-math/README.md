@@ -1,4 +1,4 @@
-# @slider/motion-math
+# @opendolly/motion-math
 
 Pure TypeScript motion math library for the camera slider. Takes user-defined keyframes and produces dense trajectory point tables ready for upload to the board via `POST /api/trajectory`.
 
@@ -7,7 +7,7 @@ No external dependencies. All math is implemented from scratch using standard `M
 ## Quick start
 
 ```typescript
-import { generateTrajectory } from "@slider/motion-math";
+import { generateTrajectory } from "@opendolly/motion-math";
 
 const trajectory = generateTrajectory({
   keyframes: [

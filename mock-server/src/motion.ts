@@ -1,4 +1,4 @@
-import type { Position, WsEvent } from "@slider/shared";
+import type { Position, WsEvent } from "@opendolly/shared";
 import type { BoardState } from "./state.js";
 import type { StoredTrajectory } from "./trajectory.js";
 

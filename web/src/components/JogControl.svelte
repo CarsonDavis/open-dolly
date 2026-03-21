@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AxisCapability } from '@slider/shared';
+	import type { AxisCapability } from '@opendolly/shared';
 	import { connectionStore, isConnected } from '$lib/stores/connection';
 	import { positionStore } from '$lib/stores/position';
 	import AxisControl from './AxisControl.svelte';
