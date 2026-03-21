@@ -9,7 +9,7 @@ Rough cost estimates for a complete slider + gimbal system. Prices are approxima
 
 | Part | Example | Est. Cost | Notes |
 |------|---------|-----------|-------|
-| Microcontroller | Espressif ESP32-S3-DevKitC-1 (N8R8 or N32R16V) | $15-17 | Official Espressif board. Dual-core 240 MHz, Wi-Fi, BLE, TWAI (CAN), 8+ MB PSRAM, dual USB-C, IPEX antenna. See [ADR-001](adr-001-microcontroller.md) for board selection rationale |
+| Microcontroller | Espressif ESP32-S3-DevKitC-1 (N8R8 or N32R16V) | $15-17 | Official Espressif board. Dual-core 240 MHz, Wi-Fi, BLE, TWAI (CAN), 8+ MB PSRAM, dual USB-C, IPEX antenna. See [ADR-001](adr/adr-001-microcontroller.md) for board selection rationale |
 | CAN transceiver | TJA1051 or SN65HVD230 module | $1-3 | 3.3V logic level for ESP32-S3. Required for DJI gimbal communication; not needed for servo-based gimbals |
 | Stepper driver (slider) | TMC2209 silent driver | $5-8 | StealthChop for silent motion; UART config; 2.0A RMS matches motor perfectly. See [motor selection research](../research/slider-motor-selection/report.md) |
 | Stepper motor (slider) | StepperOnline 17HS19-2004S1 (NEMA 17) | $10-12 | 59 Ncm holding torque, 2.0A rated current, 42x48mm body. Handles 7 kg payload on flat and up to 45-degree inclines. See [motor selection research](../research/slider-motor-selection/report.md) |

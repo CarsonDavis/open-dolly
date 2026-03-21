@@ -9,6 +9,15 @@ All messages are JSON. The board serves both the REST and WebSocket endpoints ov
 
 ---
 
+## Connection & Discovery
+
+- **AP mode:** The board creates its own WiFi network. The SSID comes from the `ap_ssid` setting (default `Slider-XXXX`, where `XXXX` is derived from the board's MAC address).
+- **Board IP:** Always `192.168.4.1` in AP mode.
+- **Captive portal:** When a device joins the AP, it is automatically redirected to the web UI.
+- **mDNS:** The board advertises as `slider.local` (configurable via the `device_name` setting, e.g. a board named `Slider-A3F2` advertises as `slider-a3f2.local`).
+
+---
+
 ## REST Endpoints
 
 ### `GET /api/status`
@@ -29,7 +38,7 @@ Returns current system state and axis positions.
 }
 ```
 
-`state` is one of: `idle`, `playing`, `paused`, `homing`, `error`.
+`state` is one of: `idle`, `moving`, `playing`, `paused`, `homing`, `error`.
 
 ---
 
@@ -71,6 +80,11 @@ Uploads a pre-computed trajectory for playback.
     { "t": 20,   "pan": 0.4,  "tilt": 0.0, "roll": 0.0, "slide": 6.5   },
     { "t": 30,   "pan": 0.9,  "tilt": 0.0, "roll": 0.0, "slide": 14.2  }
   ],
+  "events": [
+    { "t": 5000, "type": "shutter" },
+    { "t": 15000, "type": "record_start" },
+    { "t": 25000, "type": "record_stop" }
+  ],
   "loop": false
 }
 ```
@@ -79,6 +93,7 @@ Uploads a pre-computed trajectory for playback.
 - Each point contains a value for every axis reported by `/api/capabilities`.
 - Points must be in ascending `t` order.
 - The browser pre-computes all interpolation, easing, and per-axis timing before sending — the board does not need to understand any of that.
+- `events` (optional) — an array of camera trigger events. Each has a `t` (ms timestamp) and a `type`: `shutter`, `record_start`, or `record_stop`. These trigger DJI camera commands at the specified timestamps during playback.
 
 **Response:**
 
@@ -112,9 +127,74 @@ Returns playback progress for a trajectory.
 
 ---
 
+## Settings Endpoints
+
+### `GET /api/settings`
+
+Returns current board settings.
+
+```json
+{
+  "device_name": "Slider-A3F2",
+  "ap_ssid": "Slider-A3F2",
+  "ap_password": "",
+  "telemetry_rate_hz": 50,
+  "jog_sensitivity": 1.0,
+  "home_on_boot": false
+}
+```
+
+### `PATCH /api/settings`
+
+Update one or more settings. Body is a partial settings object. Returns the full updated settings.
+
+Settings are persisted to NVS (survive power cycles). The board may need to restart for WiFi changes to take effect — if so, the response includes `"restart_required": true`. To trigger a restart, send `{"restart": true}` in a PATCH request.
+
+**Request:**
+
+```json
+{
+  "ap_password": "my-secret",
+  "telemetry_rate_hz": 25
+}
+```
+
+**Response:**
+
+```json
+{
+  "device_name": "Slider-A3F2",
+  "ap_ssid": "Slider-A3F2",
+  "ap_password": "my-secret",
+  "telemetry_rate_hz": 25,
+  "jog_sensitivity": 1.0,
+  "home_on_boot": false,
+  "restart_required": true
+}
+```
+
+---
+
 ## WebSocket Messages
 
 Connect to `ws://<board-ip>/ws`. All messages are JSON with a `cmd` (client→board) or `evt` (board→client) field.
+
+### Command Validity by State
+
+| Command | idle | moving | playing | paused | homing | error |
+|---------|------|--------|---------|--------|--------|-------|
+| `play` | ✓ | | | | | |
+| `pause` | | | ✓ | | | |
+| `resume` | | | | ✓ | | |
+| `stop` | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `scrub` | ✓ | | ✓ | ✓ | | |
+| `jog` | ✓ | ✓* | | | | |
+| `move_to` | ✓ | ✓* | | | | |
+| `home` | ✓ | | | | | |
+
+\* In `moving` state: `jog` cancels the move (→ idle). `move_to` replaces the current move.
+
+Invalid commands receive an error event: `{ "evt": "error", "code": "INVALID_STATE", "detail": "..." }`.
 
 ### Client → Board
 
@@ -144,6 +224,12 @@ Relative movement. Values are in the axis's native unit (degrees, mm). Sent cont
 
 Absolute move to a position over a specified duration. Used for "go to keyframe" type navigation. The board generates a simple linear ramp internally.
 
+- Transitions the board to `moving` state (not `playing`).
+- While in `moving`, a new `move_to` replaces the current move (restarts with the new target).
+- While in `moving`, a `jog` command cancels the move and returns to `idle`.
+- While in `moving`, `stop` cancels the move and returns to `idle`.
+- On completion, the board transitions back to `idle`.
+
 #### Homing
 
 ```json
@@ -172,7 +258,7 @@ Sent at a regular rate (configurable, default 50Hz) during any motion.
 { "evt": "state", "state": "playing" }
 ```
 
-Emitted whenever the board transitions between states: `idle`, `playing`, `paused`, `homing`, `error`.
+Emitted whenever the board transitions between states: `idle`, `moving`, `playing`, `paused`, `homing`, `error`.
 
 #### Playback complete
 
@@ -186,4 +272,4 @@ Emitted whenever the board transitions between states: `idle`, `playing`, `pause
 { "evt": "error", "code": "LIMIT_HIT", "axis": "slide", "detail": "max limit reached" }
 ```
 
-Error codes: `LIMIT_HIT`, `MOTOR_STALL`, `TRAJECTORY_INVALID`, `OUT_OF_MEMORY`, `COMMUNICATION_LOST`.
+Error codes: `LIMIT_HIT`, `MOTOR_STALL`, `TRAJECTORY_INVALID`, `OUT_OF_MEMORY`, `COMMUNICATION_LOST`, `INVALID_STATE`.
