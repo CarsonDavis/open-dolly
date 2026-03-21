@@ -1,7 +1,7 @@
 # Firmware Implementation Plan
 
-*Status: draft*
-*Last updated: 2026-03-20*
+*Status: implemented*
+*Last updated: 2026-03-21*
 
 ESP32-S3 firmware for the camera slider controller board. Implements the [Board API](../board-api.md) — serves the web UI over Wi-Fi, accepts trajectory uploads, drives a stepper motor and DJI gimbal, and reports telemetry.
 

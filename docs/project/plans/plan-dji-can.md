@@ -1,7 +1,9 @@
 # Implementation Plan: DJI Gimbal CAN Protocol Library
 
-*Status: draft*
-*Last updated: 2026-03-20*
+*Status: implemented*
+*Last updated: 2026-03-21*
+
+> **Implementation notes:** Code is in `firmware/lib/dji_can/`. The library was implemented with `update(uint32_t now_ms)` (explicit time parameter) instead of calling `millis()` internally, making it fully platform-independent. Camera control sends a 2-byte LE payload per the SDK spec. Telemetry push parsing includes the `ctrl_byte` as byte 0 before attitude angles. Position control field order matches the SDK: `yaw, roll, pitch, ctrl_byte, time_for_action`.
 
 ## Overview
 
