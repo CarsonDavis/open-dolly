@@ -1,7 +1,7 @@
 # Web UI Implementation Plan
 
-*Status: draft*
-*Last updated: 2026-03-20*
+*Status: active — V1 implemented*
+*Last updated: 2026-03-21*
 
 This document is the implementation plan for the SvelteKit web UI — the primary interface for the camera slider system. The UI runs on the user's phone or laptop browser, connects to the ESP32 board over WiFi, and provides full motion control. During development it runs against a mock server.
 

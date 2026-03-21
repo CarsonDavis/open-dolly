@@ -82,7 +82,16 @@ See [`docs/project/bom.md`](docs/project/bom.md) for the full parts list.
 
 ## Project status
 
-**Design phase — implementation starting.** Architecture, API spec, and component plans are complete. No code yet.
+**Implementation in progress.** Core software components are built and working. Hardware build not yet started.
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| Shared types | Done | [`shared/`](shared/) |
+| Motion math library | Done | [`motion-math/`](motion-math/) |
+| Mock board server | Done | [`mock-server/`](mock-server/) |
+| Web UI (V1) | Done | [`web/`](web/) |
+| DJI CAN protocol library | Done | [`firmware/lib/dji_can/`](firmware/lib/dji_can/) |
+| ESP32 firmware | Done (untested on hardware) | [`firmware/`](firmware/) |
 
 - [`docs/project/architecture.md`](docs/project/architecture.md) — system layers, trajectory model, design decisions
 - [`docs/project/board-api.md`](docs/project/board-api.md) — REST + WebSocket protocol spec
