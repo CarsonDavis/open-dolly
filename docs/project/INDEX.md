@@ -4,7 +4,7 @@
 
 | Path | Purpose | Key Details |
 |------|---------|-------------|
-| `initial-vision.md` | Original product concept and UX goals | Slider + gimbal, keyframe system, web app control; status: active |
+| `vision/` | Product vision documents | `initial-vision.md` (original concept, UX goals, versioning roadmap) and `v2-ui-vision.md` (V2 UI deep dive: curve editing, timeline view, buffers, research tasks, open design questions); status: active/draft |
 | `architecture.md` | System architecture and design principles | Hybrid trajectory model, layer diagram, modularity boundaries; status: draft |
 | `board-api.md` | Board API specification (REST + WebSocket) | Hardware-agnostic JSON protocol; capabilities discovery, trajectory upload, real-time jog/telemetry; 6 states (idle/moving/playing/paused/homing/error); settings, camera trigger events; status: draft |
 | `bom.md` | Bill of materials with cost estimates | 4 build tiers from $105 (slider-only) to $680 (slider + DJI RS 4); GPIO pin budget; power architecture; optional add-ons; status: draft |
