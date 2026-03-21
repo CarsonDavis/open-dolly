@@ -181,11 +181,12 @@ export class BoardWebSocket {
 
 	private startHeartbeat(): void {
 		this.stopHeartbeat();
+		this.lastMessageTime = Date.now();
 		this.heartbeatTimer = setInterval(() => {
 			if (Date.now() - this.lastMessageTime > HEARTBEAT_INTERVAL && this.ws?.readyState === WebSocket.OPEN) {
 				this.ws.send(JSON.stringify({ cmd: 'ping' }));
 				this.heartbeatTimeoutTimer = setTimeout(() => {
-					// No response — close and reconnect
+					// No pong received — close and reconnect
 					this.ws?.close();
 				}, HEARTBEAT_TIMEOUT);
 			}

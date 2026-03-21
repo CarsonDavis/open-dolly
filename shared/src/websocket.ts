@@ -51,6 +51,10 @@ export interface HomeCommand {
   axes: string[];
 }
 
+export interface PingCommand {
+  cmd: "ping";
+}
+
 export interface SimulateErrorCommand {
   cmd: "simulate_error";
   code: ErrorCode;
@@ -67,6 +71,7 @@ export type WsCommand =
   | JogCommand
   | MoveToCommand
   | HomeCommand
+  | PingCommand
   | SimulateErrorCommand;
 
 // ---------------------------------------------------------------------------
@@ -96,9 +101,14 @@ export interface ErrorEvent {
   detail: string;
 }
 
+export interface PongEvent {
+  evt: "pong";
+}
+
 /** Union of all WebSocket board → client events. */
 export type WsEvent =
   | PositionEvent
   | StateEvent
   | CompleteEvent
-  | ErrorEvent;
+  | ErrorEvent
+  | PongEvent;

@@ -238,6 +238,14 @@ Absolute move to a position over a specified duration. Used for "go to keyframe"
 
 Triggers the homing sequence for the specified axes. Only relevant for axes with limit switches or encoders.
 
+#### Heartbeat
+
+```json
+{ "cmd": "ping" }
+```
+
+Connection health check. Valid from any state — does not affect system state or enter the command queue. The board responds immediately with `{ "evt": "pong" }`. The web UI sends a ping if no message has been received for 5 seconds, and closes the connection (triggering auto-reconnect) if no pong arrives within 3 seconds.
+
 ---
 
 ### Board → Client
@@ -265,6 +273,14 @@ Emitted whenever the board transitions between states: `idle`, `moving`, `playin
 ```json
 { "evt": "complete", "trajectory_id": "abc123" }
 ```
+
+#### Heartbeat response
+
+```json
+{ "evt": "pong" }
+```
+
+Immediate response to a `ping` command. See Heartbeat above.
 
 #### Errors
 

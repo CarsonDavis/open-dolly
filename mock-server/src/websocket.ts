@@ -93,6 +93,12 @@ export function registerWebSocket(
 
         const cmd = parsed.cmd;
 
+        // ping is valid from any state — immediate pong, no state change
+        if (cmd === "ping") {
+          broadcast({ evt: "pong" });
+          return;
+        }
+
         // simulate_error is valid from any state
         if (cmd === "simulate_error") {
           handleSimulateError(parsed as { cmd: "simulate_error"; code: ErrorCode; axis?: string });

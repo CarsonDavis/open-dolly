@@ -427,6 +427,15 @@ static void parseWebSocketCommand(const char* data, size_t len, AsyncWebSocketCl
         command.type = CommandType::SCRUB;
         command.data.scrub.t_ms = doc["t"] | 0;
     }
+    else if (strcmp(cmd, "ping") == 0) {
+        // Respond immediately — no state change, no command queue
+        JsonDocument pong;
+        pong["evt"] = "pong";
+        char buf[32];
+        serializeJson(pong, buf, sizeof(buf));
+        client->text(buf);
+        return;
+    }
     else {
         sendError(client, "UNKNOWN_CMD", cmd);
         return;
