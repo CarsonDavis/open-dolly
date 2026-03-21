@@ -23,8 +23,8 @@
 | Path | Purpose | Key Details |
 |------|---------|-------------|
 | `plans/plan-motion-math.md` | Motion math library (pure TypeScript) | Catmull-Rom, SQUAD, easing, trajectory generator; dynamic axis model; full API signatures, algorithm details, per-axis timing model, test strategy; zero dependencies; status: draft |
-| `plans/plan-mock-server.md` | Mock board server | Fastify + TypeScript standalone process; implements all board-api.md endpoints; simulated motion model; 3 capability profiles; WebSocket telemetry; error simulation; status: draft |
+| `plans/plan-mock-server.md` | Mock board server | Fastify + TypeScript standalone process; implements all board-api.md endpoints; simulated motion model; 3 capability profiles; WebSocket telemetry; error simulation; status: implemented |
 | `plans/plan-dji-can.md` | DJI gimbal CAN protocol library (C++) | Portable library (no ESP32 deps); frame format, CRC16/CRC32, CanBusInterface abstraction; state machine; 3-phase command set (camera control in Phase 1); risk register; status: draft |
 | `plans/plan-web-ui.md` | SvelteKit web UI | Component architecture, store design, API client, V1/V2 scope, wireframes, <500KB bundle budget; captive portal, camera trigger V1, shared types, multi-client; status: draft |
 | `plans/plan-firmware.md` | ESP32-S3 firmware | FreeRTOS tasks (Core 0=network, Core 1=motion), 6-state machine, DJI 10Hz rate limiting, camera trigger events, homing, WiFi AP + captive portal, NVS settings, multi-client WebSocket; status: draft |
-| `plans/shared-types.md` | Shared TypeScript types strategy | `shared/` directory at project root; web/ and mock-server/ import from it; firmware C++ types in commands.h; status: draft |
+| `plans/shared-types.md` | Shared TypeScript types strategy | `shared/` directory at project root; web/ and mock-server/ import from it; firmware C++ types in commands.h; status: implemented |

@@ -1,7 +1,7 @@
 # Mock Board Server — Implementation Plan
 
-*Status: draft*
-*Last updated: 2026-03-20*
+*Status: implemented*
+*Last updated: 2026-03-21*
 
 This document specifies a mock implementation of the [Board API](../board-api.md) for developing the web UI without hardware. The mock server implements every REST endpoint and WebSocket message defined in the spec, with simulated motion and configurable hardware profiles.
 
