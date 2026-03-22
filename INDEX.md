@@ -37,9 +37,9 @@
 | `CLAUDE.md` | Indexing protocol and repo conventions | Defines INDEX.md format, update rules, sub-index structure |
 | `package.json` | Root workspace config | npm workspaces: `shared`, `motion-math`, `mock-server`, `web`; `npm run dev` starts mock + UI via concurrently |
 | `tsconfig.base.json` | Shared TypeScript config | ES2022, Node16 modules, strict mode; extended by all workspace packages |
-| `shared/` | Shared TypeScript types (`@opendolly/shared`) | Board API types matching `board-api.md`; 6 modules: capabilities, state, trajectory, settings, errors, websocket |
+| `shared/` | Shared TypeScript types (`@opendolly/shared`) | Board API types matching `board-api.md`; 7 modules: capabilities, state, trajectory, settings, errors, websocket, transition (V2: ProgressCurvePoint, AxisCurve, BufferConfig, Transition) |
 | `mock-server/` | Mock board server for UI development | Fastify 5 + WebSocket; implements full Board API; profiles: slider-only, slider-servo, slider-dji; CLI with --port, --profile, --latency flags |
-| `motion-math/` | Pure TypeScript motion math library | Has its own `INDEX.md`; Catmull-Rom splines, SQUAD quaternion interpolation, cubic bezier easing, trajectory table generator; no external deps; 49 tests via Vitest |
+| `motion-math/` | Pure TypeScript motion math library | Has its own `INDEX.md`; Catmull-Rom splines, SQUAD quaternion interpolation, cubic bezier easing, monotone PCHIP progress curves (V2), trajectory table generator; no external deps; 69 tests via Vitest |
 | `docs/` | All documentation | Has its own `INDEX.md`; subdivided into `research/`, `project/`, `external/` |
-| `web/` | SvelteKit web UI for browser-based slider control | Has its own `INDEX.md`; V1: jog pad, keyframe capture, playback with easing via `@opendolly/motion-math`, settings page; SPA with adapter-static (184KB build); dark theme; imports `@opendolly/shared` and `@opendolly/motion-math`; Svelte 5 runes |
+| `web/` | SvelteKit web UI for browser-based slider control | Has its own `INDEX.md`; V2: per-axis control panel (jog/position modes, increments, typed input), transition editing (duration/speed, per-axis curve editor), timeline with scrub preview, buffer support; SPA with adapter-static (204KB build); dark theme; Svelte 5 runes |
 | `firmware/` | ESP32-S3 firmware (PlatformIO) | Has its own `INDEX.md`; DJI CAN lib in `lib/dji_can/`; all Board API endpoints implemented; 7 native test suites |

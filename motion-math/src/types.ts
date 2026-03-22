@@ -54,14 +54,27 @@ export type EasingPreset =
 /** Easing configuration: either a preset name or custom bezier parameters. */
 export type EasingConfig = EasingPreset | CubicBezierParams;
 
+/** A point on a progress curve (normalized [0, 1] space). */
+export interface ProgressCurvePoint {
+  t: number;
+  progress: number;
+}
+
+/** Multi-point progress curve for V2 per-axis curve editing.
+ *  Points are interior control points; (0,0) and (1,1) are implicit endpoints. */
+export interface ProgressCurve {
+  points: ProgressCurvePoint[];
+}
+
 /** Per-axis timing and easing configuration. */
 export interface AxisConfig {
   /** Delay before this axis starts moving, in ms from move start. Default: 0. */
   delay_ms: number;
   /** Duration of this axis's movement, in ms. Default: total move duration. */
   duration_ms: number;
-  /** Easing function for this axis. Default: "linear". */
-  easing: EasingConfig;
+  /** Easing function for this axis. Default: "linear".
+   *  Accepts V1 presets/bezier or V2 multi-point progress curves. */
+  easing: EasingConfig | ProgressCurve;
 }
 
 /** Whether an axis represents a rotation or linear motion.

@@ -89,7 +89,7 @@ See [`docs/project/bom.md`](docs/project/bom.md) for the full parts list.
 | Shared types | Done | [`shared/`](shared/) |
 | Motion math library | Done | [`motion-math/`](motion-math/) |
 | Mock board server | Done | [`mock-server/`](mock-server/) |
-| Web UI (V1) | Done | [`web/`](web/) |
+| Web UI (V2) | Implemented (untested in browser) | [`web/`](web/) |
 | DJI CAN protocol library | Done | [`firmware/lib/dji_can/`](firmware/lib/dji_can/) |
 | ESP32 firmware | Done (untested on hardware) | [`firmware/`](firmware/) |
 

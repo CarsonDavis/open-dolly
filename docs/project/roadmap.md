@@ -29,7 +29,7 @@ All software components built and working. Hardware build not yet started.
 
 ---
 
-## V2 (next — in design)
+## V2 (implemented — pending manual testing)
 
 Full vision document: [`vision/v2-ui-vision.md`](vision/v2-ui-vision.md)
 UX research: [`docs/research/slider-ui-ux/report.md`](../research/slider-ui-ux/report.md)

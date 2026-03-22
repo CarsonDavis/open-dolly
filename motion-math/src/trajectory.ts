@@ -12,10 +12,29 @@ import type {
   AxisConfig,
   EasingConfig,
   EulerAngles,
+  ProgressCurve,
 } from "./types.js";
 import { createCatmullRomSpline } from "./catmull-rom.js";
 import { createSquadInterpolator } from "./squad.js";
 import { createEasingFunction } from "./easing.js";
+import { createProgressCurveFunction } from "./progress-curve.js";
+
+/** Type guard: distinguishes ProgressCurve from EasingConfig. */
+function isProgressCurve(
+  easing: EasingConfig | ProgressCurve,
+): easing is ProgressCurve {
+  return typeof easing === "object" && "points" in easing;
+}
+
+/** Build an easing function from either a V1 EasingConfig or V2 ProgressCurve. */
+function buildEasingFunction(
+  easing: EasingConfig | ProgressCurve,
+): (t: number) => number {
+  if (isProgressCurve(easing)) {
+    return createProgressCurveFunction(easing.points);
+  }
+  return createEasingFunction(easing);
+}
 
 const VALID_ROTATION_AXES = new Set(["pan", "tilt", "roll"]);
 
@@ -95,7 +114,7 @@ export function generateTrajectory(config: TrajectoryConfig): Trajectory {
   // ── Build easing functions ──────────────────────────────────────
   const easingFns: Record<string, (t: number) => number> = {};
   for (const axis of allAxes) {
-    easingFns[axis] = createEasingFunction(resolvedAxes[axis].easing);
+    easingFns[axis] = buildEasingFunction(resolvedAxes[axis].easing);
   }
 
   // ── Normalize keyframe times to [0, 1] ─────────────────────────
@@ -248,8 +267,24 @@ function round1(v: number): number {
   return Math.round(v * 10) / 10;
 }
 
-/** Compare two EasingConfig values for equality. */
-function easingEqual(a: EasingConfig, b: EasingConfig): boolean {
+/** Compare two easing values for equality. */
+function easingEqual(
+  a: EasingConfig | ProgressCurve,
+  b: EasingConfig | ProgressCurve,
+): boolean {
   if (typeof a === "string" || typeof b === "string") return a === b;
-  return a.x1 === b.x1 && a.y1 === b.y1 && a.x2 === b.x2 && a.y2 === b.y2;
+  const aIsPC = isProgressCurve(a);
+  const bIsPC = isProgressCurve(b);
+  if (aIsPC !== bIsPC) return false;
+  if (aIsPC && bIsPC) {
+    const ap = (a as ProgressCurve).points;
+    const bp = (b as ProgressCurve).points;
+    if (ap.length !== bp.length) return false;
+    return ap.every(
+      (p, i) => p.t === bp[i].t && p.progress === bp[i].progress,
+    );
+  }
+  const ac = a as { x1: number; y1: number; x2: number; y2: number };
+  const bc = b as { x1: number; y1: number; x2: number; y2: number };
+  return ac.x1 === bc.x1 && ac.y1 === bc.y1 && ac.x2 === bc.x2 && ac.y2 === bc.y2;
 }

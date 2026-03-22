@@ -20,10 +20,51 @@
 	let jogSensitivity = $state(1.0);
 	let homeOnBoot = $state(false);
 
+	// V2 local settings (stored in localStorage, not sent to board)
+	const V2_SETTINGS_KEY = 'opendolly-settings-v2';
+
+	interface V2LocalSettings {
+		buffersEnabled: boolean;
+		bufferPreMs: number;
+		bufferPostMs: number;
+		movementSpeedPercent: Record<string, number>;
+	}
+
+	let buffersEnabled = $state(false);
+	let bufferPreMs = $state(1000);
+	let bufferPostMs = $state(1000);
+	let movementSpeedPercent = $state<Record<string, number>>({});
+
+	function loadV2Settings() {
+		if (typeof localStorage === 'undefined') return;
+		try {
+			const raw = localStorage.getItem(V2_SETTINGS_KEY);
+			if (raw) {
+				const s: V2LocalSettings = JSON.parse(raw);
+				buffersEnabled = s.buffersEnabled ?? false;
+				bufferPreMs = s.bufferPreMs ?? 1000;
+				bufferPostMs = s.bufferPostMs ?? 1000;
+				movementSpeedPercent = s.movementSpeedPercent ?? {};
+			}
+		} catch { /* ignore */ }
+	}
+
+	function saveV2Settings() {
+		if (typeof localStorage === 'undefined') return;
+		const s: V2LocalSettings = {
+			buffersEnabled,
+			bufferPreMs,
+			bufferPostMs,
+			movementSpeedPercent
+		};
+		localStorage.setItem(V2_SETTINGS_KEY, JSON.stringify(s));
+	}
+
 	const baseUrl = import.meta.env.VITE_BOARD_URL ?? '';
 	const client = new BoardClient(baseUrl);
 
 	onMount(async () => {
+		loadV2Settings();
 		try {
 			const s = await client.getSettings();
 			settings = s;
@@ -131,6 +172,47 @@
 					<span>Home on boot</span>
 				</label>
 			</section>
+
+			<section class="settings-section">
+				<h2>Buffers (Anti-Jitter)</h2>
+				<label class="field checkbox-field">
+					<input type="checkbox" bind:checked={buffersEnabled} onchange={saveV2Settings} />
+					<span>Enable buffers</span>
+				</label>
+				{#if buffersEnabled}
+					<label class="field">
+						<span>Pre-buffer (ms)</span>
+						<input type="number" bind:value={bufferPreMs} min="100" max="5000" step="100" onchange={saveV2Settings} />
+					</label>
+					<label class="field">
+						<span>Post-buffer (ms)</span>
+						<input type="number" bind:value={bufferPostMs} min="100" max="5000" step="100" onchange={saveV2Settings} />
+					</label>
+				{/if}
+			</section>
+
+			{#if $capabilitiesStore}
+				<section class="settings-section">
+					<h2>Movement Speed</h2>
+					{#each $capabilitiesStore.axes as axis}
+						<label class="field">
+							<span>{axis.name} ({(movementSpeedPercent[axis.name] ?? 25)}%)</span>
+							<input
+								type="range"
+								min="5"
+								max="100"
+								step="5"
+								value={movementSpeedPercent[axis.name] ?? 25}
+								oninput={(e) => {
+									movementSpeedPercent = { ...movementSpeedPercent, [axis.name]: parseInt((e.target as HTMLInputElement).value) };
+									saveV2Settings();
+								}}
+								class="sensitivity-slider"
+							/>
+						</label>
+					{/each}
+				</section>
+			{/if}
 
 			{#if $capabilitiesStore}
 				<section class="settings-section">

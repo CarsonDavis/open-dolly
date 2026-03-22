@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { AxisCapability } from '@opendolly/shared';
-	import type { Keyframe } from '$lib/stores/keyframes';
+	import type { SequenceKeyframe as Keyframe } from '$lib/stores/sequence';
 	import { formatPositionSummary } from '$lib/utils/format';
 
 	interface Props {
@@ -9,6 +9,7 @@
 		axes: AxisCapability[];
 		isFirst: boolean;
 		isLast: boolean;
+		selected?: boolean;
 		ongoto?: () => void;
 		ondelete?: () => void;
 		onmoveup?: () => void;
@@ -22,6 +23,7 @@
 		axes,
 		isFirst,
 		isLast,
+		selected = false,
 		ongoto,
 		ondelete,
 		onmoveup,
@@ -40,7 +42,7 @@
 	}
 </script>
 
-<div class="keyframe-card">
+<div class="keyframe-card" class:selected>
 	<div class="card-header">
 		{#if isEditingLabel}
 			<form onsubmit={(e) => { e.preventDefault(); submitLabel(); }}>
@@ -68,7 +70,9 @@
 	</div>
 
 	<div class="card-footer">
-		<button class="action-btn goto" onclick={ongoto}>Go To</button>
+		<button class="action-btn goto" onclick={ongoto}>
+			{selected ? 'Deselect' : 'Select'}
+		</button>
 		<button class="action-btn delete" onclick={ondelete}>Delete</button>
 	</div>
 </div>
@@ -79,6 +83,12 @@
 		border: 1px solid var(--color-primary);
 		border-radius: var(--radius);
 		padding: 0.75rem;
+	}
+
+	.keyframe-card.selected {
+		border-color: var(--color-accent);
+		border-width: 2px;
+		padding: calc(0.75rem - 1px);
 	}
 
 	.card-header {

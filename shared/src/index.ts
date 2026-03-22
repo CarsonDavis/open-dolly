@@ -14,6 +14,12 @@ export type {
 } from "./settings.js";
 export type { ErrorCode } from "./errors.js";
 export type {
+  ProgressCurvePoint,
+  AxisCurve,
+  BufferConfig,
+  Transition,
+} from "./transition.js";
+export type {
   PlayCommand,
   PauseCommand,
   ResumeCommand,

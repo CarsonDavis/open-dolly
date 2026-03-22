@@ -19,6 +19,16 @@
 | `adr/adr-003-linear-drive.md` | ADR: linear drive system, motor, and vertical operation | Payload spec (3.5kg real / 7kg design), torque equations for vertical, 4 drive options (belt/ball screw/lead screw/hybrid), motor analysis (NEMA 17 + EM brake recommended), self-locking analysis, thermal analysis, brake control hardware; status: exploring |
 | `adr/adr-004-linear-guide.md` | ADR: linear guide and rail system | MGN12H-CC on 2040 extrusion (tall orientation); rods ruled out (deflection at 1200mm); V-wheels ruled out (no inverted operation); all-orientation capable; 0.76mm deflection; 4040 upgrade path; status: accepted |
 
+## V2 Design Docs (`v2/`)
+
+| Path | Purpose | Key Details |
+|------|---------|-------------|
+| `v2/functional-requirements.md` | V2 functional requirements (D1) | ~60 "user should be able to..." statements across 10 feature areas; testable; status: draft |
+| `v2/data-model.md` | V2 data model spec (D3) | Sequence/Keyframe/Transition types, ProgressCurve, localStorage schema with V1 migration, component contracts (store → builder → motion-math → board); status: draft |
+| `v2/user-stories.md` | V2 user stories (D2) | 6 end-to-end workflows: first keyframe, curve editing, buffers, retiming, phone vs desktop, solo shooter; status: draft |
+| `v2/wireframes.md` | V2 wireframes (D4) | ASCII wireframes for all views: phone portrait/landscape, desktop, curve editor states, timeline, buffer indicators, transport bar states; status: draft |
+| `v2/implementation-plan.md` | V2 implementation plan (D5) | 7 phases (0-6): types → curve math → sequence store → control panel → curve editor → timeline → buffers; dependency graph, file lists, test strategy; status: draft |
+
 ## Implementation Plans (`plans/`)
 
 | Path | Purpose | Key Details |

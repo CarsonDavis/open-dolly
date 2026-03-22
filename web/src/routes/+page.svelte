@@ -1,26 +1,25 @@
 <script lang="ts">
 	import { capabilitiesStore } from '$lib/stores/capabilities';
 	import { isConnected } from '$lib/stores/connection';
-	import JogControl from '../components/JogControl.svelte';
+	import ControlPanel from '../components/ControlPanel.svelte';
 	import KeyframeList from '../components/KeyframeList.svelte';
 	import PlaybackControls from '../components/PlaybackControls.svelte';
-	import TabBar from '../components/TabBar.svelte';
-
-	const tabs = ['Jog', 'Keyframes', 'Play'];
-	let activeTab = $state('Jog');
+	import TimelineView from '../components/TimelineView.svelte';
 
 	let isMobile = $state(typeof window !== 'undefined' && window.innerWidth < 640);
+	let isDesktop = $state(typeof window !== 'undefined' && window.innerWidth >= 1024);
 
-	function checkMobile() {
+	function checkBreakpoints() {
 		isMobile = window.innerWidth < 640;
+		isDesktop = window.innerWidth >= 1024;
 	}
 
 	$effect(() => {
-		checkMobile();
+		checkBreakpoints();
 	});
 </script>
 
-<svelte:window onresize={checkMobile} />
+<svelte:window onresize={checkBreakpoints} />
 <svelte:head>
 	<title>Slider</title>
 </svelte:head>
@@ -36,21 +35,23 @@
 	</div>
 {:else}
 	{#if isMobile}
-		<TabBar {tabs} active={activeTab} onchange={(t) => activeTab = t} />
-
-		<div class="tab-content">
-			{#if activeTab === 'Jog'}
-				<JogControl axes={$capabilitiesStore.axes} />
-			{:else if activeTab === 'Keyframes'}
+		<!-- Phone portrait: keyframes top, control panel bottom -->
+		<div class="portrait-layout">
+			<div class="keyframe-area">
 				<KeyframeList axes={$capabilitiesStore.axes} />
-			{:else if activeTab === 'Play'}
+			</div>
+			<div class="control-area">
+				<ControlPanel axes={$capabilitiesStore.axes} />
+			</div>
+			<div class="transport-area">
 				<PlaybackControls />
-			{/if}
+			</div>
 		</div>
 	{:else}
-		<div class="desktop-layout">
+		<!-- Landscape / Desktop: split layout -->
+		<div class="landscape-layout">
 			<div class="left-panel">
-				<JogControl axes={$capabilitiesStore.axes} />
+				<ControlPanel axes={$capabilitiesStore.axes} />
 			</div>
 			<div class="right-panel">
 				<KeyframeList axes={$capabilitiesStore.axes} />
@@ -59,6 +60,11 @@
 		<div class="bottom-panel">
 			<PlaybackControls />
 		</div>
+		{#if isDesktop}
+			<div class="timeline-panel">
+				<TimelineView axes={$capabilitiesStore.axes} />
+			</div>
+		{/if}
 	{/if}
 {/if}
 
@@ -78,23 +84,48 @@
 		margin-top: 0.5rem;
 	}
 
-	.tab-content {
-		padding: 1rem 0;
+	/* Portrait phone layout */
+	.portrait-layout {
+		display: flex;
+		flex-direction: column;
+		min-height: calc(100vh - 3rem); /* account for status bar */
 	}
 
-	.desktop-layout {
+	.keyframe-area {
+		flex: 1;
+		overflow-y: auto;
+		padding: 0.5rem 0;
+	}
+
+	.control-area {
+		flex-shrink: 0;
+	}
+
+	.transport-area {
+		flex-shrink: 0;
+		padding-top: 0.5rem;
+	}
+
+	/* Landscape / Desktop layout */
+	.landscape-layout {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1.5rem;
-		margin-bottom: 1.5rem;
+		grid-template-columns: 2fr 3fr;
+		gap: 1rem;
+		margin-bottom: 1rem;
 	}
 
 	.left-panel,
 	.right-panel {
 		min-width: 0;
+		max-height: calc(100vh - 8rem);
+		overflow-y: auto;
 	}
 
 	.bottom-panel {
 		max-width: 600px;
+	}
+
+	.timeline-panel {
+		margin-top: 1rem;
 	}
 </style>

@@ -1,25 +1,17 @@
 <script lang="ts">
-	import type { Capabilities, TrajectoryPoint } from '@opendolly/shared';
-	import { generateTrajectory, type EasingPreset, type AxisInterpolation } from '@opendolly/motion-math';
-	import { keyframeStore } from '$lib/stores/keyframes';
+	import type { TrajectoryPoint } from '@opendolly/shared';
+	import type { AxisInterpolation } from '@opendolly/motion-math';
+	import { sequenceStore } from '$lib/stores/sequence';
 	import { trajectoryStore } from '$lib/stores/trajectory';
 	import { stateStore, isIdle, isPlaying } from '$lib/stores/state';
 	import { connectionStore, isConnected } from '$lib/stores/connection';
 	import { capabilitiesStore } from '$lib/stores/capabilities';
 	import { BoardClient } from '$lib/api/client';
+	import { buildTrajectory, getSequenceDuration, allTransitionsSet } from '$lib/utils/trajectory-builder';
 
-	let durationSec = $state(5.0);
-	let easing = $state<EasingPreset>('easeInOut');
-
-	let hasEnoughKeyframes = $derived($keyframeStore.length >= 2);
-	let canUploadAndPlay = $derived(hasEnoughKeyframes && $isConnected && $isIdle);
-
-	const easingOptions: { value: EasingPreset; label: string }[] = [
-		{ value: 'linear', label: 'Linear' },
-		{ value: 'easeIn', label: 'Ease In' },
-		{ value: 'easeOut', label: 'Ease Out' },
-		{ value: 'easeInOut', label: 'Ease In-Out' }
-	];
+	let hasEnoughKeyframes = $derived($sequenceStore.keyframes.length >= 2);
+	let transitionsReady = $derived(hasEnoughKeyframes && allTransitionsSet($sequenceStore));
+	let canUploadAndPlay = $derived(transitionsReady && $isConnected && $isIdle);
 
 	async function uploadAndPlay() {
 		if (!canUploadAndPlay) return;
@@ -28,9 +20,6 @@
 
 		const ws = connectionStore.getWebSocket();
 		if (!ws) return;
-
-		const durationMs = durationSec * 1000;
-		const keyframes = $keyframeStore;
 
 		trajectoryStore.setComputing();
 		try {
@@ -41,24 +30,10 @@
 				axisTypes[axis.name] = rotationAxes.has(axis.name) ? 'rotation' : 'linear';
 			}
 
-			// Build keyframes with evenly spaced times across the duration
-			const motionKeyframes = keyframes.map((kf, i) => ({
-				t: keyframes.length === 1 ? 0 : (i / (keyframes.length - 1)) * durationMs,
-				positions: kf.positions
-			}));
-
-			// Generate trajectory using motion-math library
-			const trajectory = generateTrajectory({
-				keyframes: motionKeyframes,
-				axisTypes,
-				axes: Object.fromEntries(
-					caps.axes.map((a) => [a.name, { easing }])
-				),
-				sample_interval_ms: 10,
-				loop: false
-			});
-
-			const points = trajectory.points as TrajectoryPoint[];
+			// Build trajectory from sequence
+			const result = buildTrajectory($sequenceStore, axisTypes);
+			const points = result.points as TrajectoryPoint[];
+			const durationMs = getSequenceDuration($sequenceStore);
 			trajectoryStore.setComputed(points, durationMs);
 
 			// Upload
@@ -91,25 +66,6 @@
 </script>
 
 <div class="playback-controls">
-	<div class="config-row">
-		<label class="config-field">
-			<span class="config-label">Duration</span>
-			<div class="input-group">
-				<input type="number" bind:value={durationSec} min="0.5" max="300" step="0.5" class="duration-input" />
-				<span class="input-suffix">s</span>
-			</div>
-		</label>
-
-		<label class="config-field">
-			<span class="config-label">Easing</span>
-			<select bind:value={easing} class="easing-select">
-				{#each easingOptions as opt}
-					<option value={opt.value}>{opt.label}</option>
-				{/each}
-			</select>
-		</label>
-	</div>
-
 	{#if $stateStore.state === 'playing' || $stateStore.state === 'paused'}
 		<div class="transport">
 			{#if $stateStore.state === 'playing'}
@@ -138,6 +94,8 @@
 		>
 			{#if !hasEnoughKeyframes}
 				Need 2+ keyframes
+			{:else if !transitionsReady}
+				Set transition durations
 			{:else if $trajectoryStore.state === 'computing'}
 				Computing...
 			{:else if $trajectoryStore.state === 'uploading'}
@@ -169,46 +127,6 @@
 		background: var(--color-surface);
 		border-radius: var(--radius);
 		border: 1px solid var(--color-primary);
-	}
-
-	.config-row {
-		display: flex;
-		gap: 1rem;
-		align-items: end;
-	}
-
-	.config-field {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		flex: 1;
-	}
-
-	.config-label {
-		font-size: 0.75rem;
-		color: var(--color-text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.input-group {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-
-	.duration-input {
-		width: 5rem;
-		font-family: var(--font-mono);
-	}
-
-	.input-suffix {
-		font-size: 0.875rem;
-		color: var(--color-text-muted);
-	}
-
-	.easing-select {
-		width: 100%;
 	}
 
 	.upload-play-btn {

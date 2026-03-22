@@ -2,7 +2,7 @@
 
 *Compiled from voice notes captured 2026-03-21. This document expands on the V2 items outlined in [`initial-vision.md`](initial-vision.md) with full detail on interaction models, data structures, user stories, and open design questions.*
 
-Status: **draft**
+Status: **active**
 
 ---
 
@@ -46,20 +46,25 @@ All research tasks are complete. Results in [`docs/research/slider-ui-ux/`](../.
 
 ### Documentation
 
-- [ ] **D1: Functional requirements document.** Define every capability the V2 UI must support, divorced from wireframes and page layout. Pure "the user should be able to..." statements. Organized by feature area, not by screen. This document drives everything else.
+- [x] **D1: Functional requirements document.** Define every capability the V2 UI must support, divorced from wireframes and page layout. Pure "the user should be able to..." statements. Organized by feature area, not by screen. This document drives everything else.
+  - **Result:** ~60 requirements across 10 feature areas. See `../v2/functional-requirements.md`.
 
-- [ ] **D2: User stories.** Write detailed user stories that walk through complete workflows end-to-end. At minimum:
+- [x] **D2: User stories.** Write detailed user stories that walk through complete workflows end-to-end. At minimum:
   - First-time setup and first keyframe capture
   - Multi-keyframe product shoot with curve editing
   - Using buffers to get jitter-free stops
   - Editing an existing sequence (retiming, adjusting curves)
   - Working on a phone vs. working on a desktop
+  - **Result:** 6 stories including solo shooter workflow. See `../v2/user-stories.md`.
 
-- [ ] **D3: Data model spec.** Define the V2 data structures — keyframes, transitions, curves, buffers — and how they relate to the existing `@opendolly/shared` types and the Board API. This is the contract between the UI and the motion-math library.
+- [x] **D3: Data model spec.** Define the V2 data structures — keyframes, transitions, curves, buffers — and how they relate to the existing `@opendolly/shared` types and the Board API. This is the contract between the UI and the motion-math library.
+  - **Result:** Sequence/Keyframe/Transition types, ProgressCurve, localStorage schema, V1 migration, component contracts. See `../v2/data-model.md`.
 
-- [ ] **D4: Wireframes.** Create wireframes for all views and states described below — keyframe view (phone portrait, phone landscape, desktop), timeline view (desktop), curve editor, control panel states. Do these after R1-R4 and D1-D2 are complete so they're informed by research.
+- [x] **D4: Wireframes.** Create wireframes for all views and states described below — keyframe view (phone portrait, phone landscape, desktop), timeline view (desktop), curve editor, control panel states. Do these after R1-R4 and D1-D2 are complete so they're informed by research.
+  - **Result:** ASCII wireframes for all views and states. See `../v2/wireframes.md`.
 
-- [ ] **D5: V2 implementation plan.** Break the build into phases with clear milestones. Written after D1-D4 are done.
+- [x] **D5: V2 implementation plan.** Break the build into phases with clear milestones. Written after D1-D4 are done.
+  - **Result:** 7 phases with file lists, test strategy, and dependency graph. See `../v2/implementation-plan.md`.
 
 ---
 
@@ -415,17 +420,18 @@ If an advanced curve has been created in the curves mode, then editing a single 
 
 The V2 UI builds on the existing V1 codebase in `web/`. Key areas of change:
 
-| V1 Component | V2 Change |
+| V1 Component | V2 Status |
 |---|---|
-| `keyframeStore` | Needs to store transitions (curves, per-axis timing) between keyframes, not just position snapshots |
-| `PlaybackControls` | Easing preset dropdown replaced by curve editor integration; trajectory generation uses new curve data |
-| `@opendolly/motion-math` | `generateTrajectory()` needs to accept multi-point curve definitions, not just single bezier presets |
-| `KeyframeList` / `KeyframeCard` | Duration brackets between cards; click-to-edit transitions; richer card display |
-| New: `CurveEditor` component | Per-axis curve editor with point manipulation (does not exist in V1) |
-| New: `TimelineView` component | Multi-channel horizontal timeline with drag-to-retime (does not exist in V1) |
-| `JogControl` | Evolves into V2 control panel: two modes (position bar + jog) with toggle, fine/coarse increment buttons, typed input per axis |
-| `@opendolly/shared` | Transition type needs to be added to the shared types |
-| Board API | May need to communicate axis resolution/precision so the UI can enforce valid inputs |
+| `keyframeStore` | Replaced by `sequenceStore` (`web/src/lib/stores/sequence.ts`) — stores keyframes + transitions with per-axis curves |
+| `PlaybackControls` | Simplified to transport-only (play/pause/stop/progress); trajectory generation moved to `trajectory-builder.ts` |
+| `@opendolly/motion-math` | `generateTrajectory()` now accepts `ProgressCurve` easing via `progress-curve.ts` (monotone PCHIP) |
+| `KeyframeList` / `KeyframeCard` | Duration brackets between cards; keyframe selection behavior (tap to select, jog to overwrite) |
+| `JogControl` / `AxisControl` / `TabBar` | Deleted — replaced by `ControlPanel` + `AxisStrip` (jog/position modes, increments, typed input) |
+| New: `CurveEditor` / `CurveLane` | SVG-based per-axis curve editor with point manipulation, linking, presets |
+| New: `TimelineView` | Multi-channel horizontal timeline with drag-to-retime, scrub playhead, auto-upload |
+| New: `TransitionEditor` | Duration/speed editing simple view with Advanced button to curve editor |
+| `@opendolly/shared` | Added `transition.ts` with `ProgressCurvePoint`, `AxisCurve`, `BufferConfig`, `Transition` types |
+| Board API | Unchanged — board receives pre-computed trajectory tables. Axis resolution deferred to future API update. |
 
 ---
 
