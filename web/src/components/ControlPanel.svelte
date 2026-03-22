@@ -36,10 +36,8 @@
 			if (ws) ws.sendMoveTo({ [axisName]: value }, 1000);
 		}
 		// If a keyframe is selected, update its position
-		if ($selectedKeyframeId) {
-			const currentPositions = selectedKf?.positions ?? {};
+		if ($selectedKeyframeId && selectedKf) {
 			sequenceStore.updateKeyframePositions($selectedKeyframeId, {
-				...currentPositions,
 				[axisName]: value
 			});
 		}
@@ -70,7 +68,13 @@
 				onclick={captureKeyframe}
 				disabled={!$isConnected || !hasPositionData}
 			>
-				Capture Keyframe
+				{#if !$isConnected}
+					Not connected
+				{:else if !hasPositionData}
+					Waiting for position...
+				{:else}
+					Capture Keyframe
+				{/if}
 			</button>
 		{/if}
 		<button class="expand-btn" onclick={() => collapsed = false}>&#9650;</button>
@@ -114,7 +118,13 @@
 					onclick={captureKeyframe}
 					disabled={!$isConnected || !hasPositionData}
 				>
-					Capture Keyframe
+					{#if !$isConnected}
+						Not connected
+					{:else if !hasPositionData}
+						Waiting for position data...
+					{:else}
+						Capture Keyframe
+					{/if}
 				</button>
 			{/if}
 			<button class="collapse-btn" onclick={() => collapsed = true}>&#9660; minimize</button>

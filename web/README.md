@@ -95,9 +95,18 @@ Keyframes ──→ keyframeStore (localStorage) ──→ generateTrajectory() 
 ```bash
 npm run build
 # Output: build/
+```
 
-# Copy to firmware for ESP32 flash:
-cp -r build/* ../firmware/data/
+## Deploy to board
+
+From the project root:
+
+```bash
+# Build and flash everything (firmware + web UI)
+npm run deploy
+
+# Rebuild and flash only the web UI (faster iteration)
+npm run deploy:ui
 ```
 
 ## V1 scope

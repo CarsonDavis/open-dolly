@@ -31,6 +31,10 @@ function createConnectionStore() {
 			for (const [key, value] of Object.entries(axes)) {
 				if (typeof value === 'number') positions[key] = value;
 			}
+			const axisCount = Object.keys(positions).length;
+			if (axisCount < 4) {
+				console.warn(`[onPosition] PARTIAL position event! Only ${axisCount} axes:`, positions, 'raw data:', data);
+			}
 			positionStore.set(positions);
 
 			// Update playback progress if playing

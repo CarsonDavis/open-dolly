@@ -450,7 +450,8 @@ class MoveToMotion implements ActiveMotion {
     this._boardState = boardState;
     this._broadcast = broadcast;
     this._startPosition = { ...boardState.position };
-    this._target = target;
+    // Fill in missing target axes with current position (hold steady)
+    this._target = { ...boardState.position, ...target };
     this._duration_ms = duration_ms;
     this._startTime = Date.now();
   }

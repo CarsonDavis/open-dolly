@@ -118,7 +118,8 @@ export class BoardWebSocket {
 	}
 
 	sendMoveTo(positions: Record<string, number>, durationMs: number): void {
-		this.send({ cmd: 'move_to', duration_ms: durationMs, ...positions } as WsCommand);
+		const cmd = { cmd: 'move_to', duration_ms: durationMs, ...positions };
+		this.send(cmd as WsCommand);
 	}
 
 	sendPlay(trajectoryId: string): void {

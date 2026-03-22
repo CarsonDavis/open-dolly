@@ -3,6 +3,7 @@
 	import { connectionStore, isConnected } from '$lib/stores/connection';
 	import { capabilitiesStore } from '$lib/stores/capabilities';
 	import { stateStore } from '$lib/stores/state';
+	import { positionStore } from '$lib/stores/position';
 	import { BoardClient } from '$lib/api/client';
 	import type { Snippet } from 'svelte';
 
@@ -37,6 +38,7 @@
 	async function pollStatus(): Promise<void> {
 		try {
 			const status = await client.getStatus();
+			positionStore.set(status.position);
 			stateStore.update((s) => ({
 				...s,
 				battery: status.battery,

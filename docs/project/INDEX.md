@@ -10,6 +10,12 @@
 | `board-api.md` | Board API specification (REST + WebSocket) | Hardware-agnostic JSON protocol; capabilities discovery, trajectory upload, real-time jog/telemetry; 6 states (idle/moving/playing/paused/homing/error); settings, camera trigger events; status: draft |
 | `bom.md` | Bill of materials with cost estimates | 4 build tiers from $105 (slider-only) to $680 (slider + DJI RS 4); GPIO pin budget; power architecture; optional add-ons; status: draft |
 
+## Hardware & Parts
+
+| Path | Purpose | Key Details |
+|------|---------|-------------|
+| `available-parts.md` | Inventory of parts on hand for prototyping | ESP32-S3-DevKitC-1 v1.1, Elegoo 37 Sensor Kit V2.0, basic starter kit (breadboard, LEDs, buttons, resistors); status: active |
+
 ## Architecture Decision Records (`adr/`)
 
 | Path | Purpose | Key Details |

@@ -1,5 +1,18 @@
 import { writable, get } from 'svelte/store';
 
+/** Generate a UUID, with fallback for non-secure contexts (e.g. ESP32 HTTP). */
+function generateId(): string {
+	if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+		try { return crypto.randomUUID(); } catch { /* fall through */ }
+	}
+	// Fallback: random hex string
+	const bytes = new Uint8Array(16);
+	(crypto ?? (globalThis as any).crypto)?.getRandomValues?.(bytes)
+		?? bytes.forEach((_, i, a) => a[i] = Math.random() * 256 | 0);
+	const h = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+	return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
 export interface SequenceKeyframe {
 	id: string;
 	label: string;
@@ -64,7 +77,7 @@ function loadSequence(): Sequence {
 			const transitions: SequenceTransition[] = [];
 			for (let i = 0; i < v1Keyframes.length - 1; i++) {
 				transitions.push({
-					id: crypto.randomUUID(),
+					id: generateId(),
 					duration_ms: 0,
 					curves: {}
 				});
@@ -110,7 +123,7 @@ function createSequenceStore() {
 		addKeyframe(positions: Record<string, number>) {
 			const seq = get({ subscribe });
 			const kf: SequenceKeyframe = {
-				id: crypto.randomUUID(),
+				id: generateId(),
 				label: `Keyframe ${seq.keyframes.length + 1}`,
 				positions: { ...positions },
 				createdAt: Date.now()
@@ -122,7 +135,7 @@ function createSequenceStore() {
 				// If this creates a pair, add a transition
 				if (keyframes.length >= 2) {
 					transitions.push({
-						id: crypto.randomUUID(),
+						id: generateId(),
 						duration_ms: 0,
 						curves: {}
 					});
@@ -177,7 +190,7 @@ function createSequenceStore() {
 				const transitions: SequenceTransition[] = [];
 				for (let i = 0; i < keyframes.length - 1; i++) {
 					transitions.push({
-						id: crypto.randomUUID(),
+						id: generateId(),
 						duration_ms: 0,
 						curves: {}
 					});
@@ -191,7 +204,7 @@ function createSequenceStore() {
 			save((s) => ({
 				...s,
 				keyframes: s.keyframes.map((kf) =>
-					kf.id === id ? { ...kf, positions: { ...positions } } : kf
+					kf.id === id ? { ...kf, positions: { ...kf.positions, ...positions } } : kf
 				)
 			}));
 		},
