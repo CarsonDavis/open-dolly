@@ -10,7 +10,10 @@
   "scripts": {
     "dev": "concurrently --names mock,ui --prefix-colors cyan,magenta \"npm run mock\" \"npm run ui\"",
     "mock": "npm run dev --workspace=mock-server",
-    "ui": "npm run dev --workspace=web"
+    "ui": "npm run dev --workspace=web",
+    "deploy": "npm run build --workspace=web && rm -rf firmware/data && cp -r web/build firmware/data && cd firmware && pio run -e slider_servo -t upload && pio run -e slider_servo -t uploadfs",
+    "deploy:ui": "npm run build --workspace=web && rm -rf firmware/data && cp -r web/build firmware/data && cd firmware && pio run -e slider_servo -t uploadfs",
+    "deploy:firmware": "cd firmware && pio run -e slider_servo -t upload"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",

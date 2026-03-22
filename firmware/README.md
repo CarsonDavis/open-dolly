@@ -25,7 +25,7 @@ Inter-task communication uses two FreeRTOS queues: `cmd_queue` (commands from th
 
 | Component | Details |
 |-----------|---------|
-| MCU | ESP32-S3-DevKitC-1 (dual-core, 8MB PSRAM, 8MB flash) |
+| MCU | ESP32-S3-DevKitC-1 v1.1 (dual-core, 16MB PSRAM, 32MB OPI flash) |
 | Stepper driver | TMC2209 (UART config, StealthChop) |
 | CAN transceiver | TJA1051 or SN65HVD230 (for DJI gimbal communication) |
 | Display | SH1107 128x128 OLED (I2C, optional) |
@@ -60,26 +60,36 @@ Inter-task communication uses two FreeRTOS queues: `cmd_queue` (commands from th
 ## Prerequisites
 
 - [PlatformIO](https://platformio.org/) (CLI or VS Code extension)
-- USB cable to ESP32-S3-DevKitC-1
+- Micro-USB cable to ESP32-S3-DevKitC-1 (use the **UART** port, not the USB port)
 
 ## Build and Flash
 
+From the project root:
+
 ```bash
-# Build the default 4-axis profile
-pio run
+# Build and flash everything (firmware + web UI)
+npm run deploy
 
-# Build a specific profile
-pio run -e slider_only
+# Flash only the firmware (no web UI rebuild)
+npm run deploy:firmware
 
-# Flash to the board
-pio run -t upload
-
-# Upload web UI files to LittleFS
-pio run -t uploadfs
+# Rebuild and flash only the web UI
+npm run deploy:ui
 
 # Monitor serial output
-pio device monitor
+uv run --with pyserial python3 -c "
+import serial, time
+ser = serial.Serial('/dev/cu.usbserial-110', 115200, timeout=1)
+ser.reset_input_buffer(); ser.dtr = False; time.sleep(0.1); ser.dtr = True
+time.sleep(4); print(ser.read(4000).decode('utf-8', errors='replace')); ser.close()
+"
 ```
+
+**Note:** `pio device monitor` does not work in non-interactive terminals. Use the pyserial snippet above or run `! pio device monitor` from an interactive shell.
+
+### Board details
+
+The ESP32-S3-DevKitC-1 v1.1 has **octal flash (OPI)** and **16MB embedded PSRAM**. The `platformio.ini` is configured with `board_build.arduino.memory_type = opi_opi` to match. Using the wrong flash mode will cause a boot loop.
 
 ## Running Tests
 

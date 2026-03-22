@@ -40,17 +40,15 @@ void telemetryBroadcastTask(void* param) {
             continue;
         }
 
-        // Build JSON message
+        // Build JSON message matching Board API spec:
+        // {"evt": "position", "t": 12400, "slide": 45.20, "pan": 0.00, ...}
         JsonDocument doc;
-        doc["type"] = "telemetry";
-        doc["t"]    = tp.t_ms;
+        doc["evt"] = "position";
+        doc["t"]   = tp.t_ms;
 
-        JsonObject pos = doc["position"].to<JsonObject>();
         for (uint8_t a = 0; a < g_axis_count; a++) {
-            pos[g_axis_config[a].name] = serialized(String(tp.axes[a], 2));
+            doc[g_axis_config[a].name] = serialized(String(tp.axes[a], 2));
         }
-
-        doc["state"] = stateName(g_state.current_state);
 
         // Serialize and broadcast
         size_t len = measureJson(doc);

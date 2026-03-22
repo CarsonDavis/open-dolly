@@ -91,7 +91,7 @@ See [`docs/project/bom.md`](docs/project/bom.md) for the full parts list.
 | Mock board server | Done | [`mock-server/`](mock-server/) |
 | Web UI (V2) | Implemented (untested in browser) | [`web/`](web/) |
 | DJI CAN protocol library | Done | [`firmware/lib/dji_can/`](firmware/lib/dji_can/) |
-| ESP32 firmware | Done (untested on hardware) | [`firmware/`](firmware/) |
+| ESP32 firmware | Done (tested on ESP32-S3-DevKitC-1 v1.1) | [`firmware/`](firmware/) |
 
 - [`docs/project/architecture.md`](docs/project/architecture.md) — system layers, trajectory model, design decisions
 - [`docs/project/board-api.md`](docs/project/board-api.md) — REST + WebSocket protocol spec

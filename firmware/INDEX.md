@@ -18,9 +18,9 @@ ESP32-S3 firmware implementing the [Board API](../docs/project/board-api.md). Se
 
 | Path | Purpose | Key Details |
 |------|---------|-------------|
-| `platformio.ini` | PlatformIO build config | 4 environments: esp32s3 (default 4-axis), slider_only, slider_servo, native (host tests) |
-| `partitions.csv` | Flash partition table | 8MB: 3MB×2 app slots, 1.875MB LittleFS, 20KB NVS |
-| `src/main.cpp` | Entry point, FreeRTOS tasks, trajectory walker | 6 tasks across 2 cores; walker at 100Hz hw timer; DJI rate-limited to 10Hz; guarded by `#ifndef NATIVE_TEST` |
+| `platformio.ini` | PlatformIO build config | 4 environments: esp32s3 (default 4-axis), slider_only, slider_servo, native (host tests); OPI flash/PSRAM mode (`opi_opi`); GitHub URLs for ESPAsyncWebServer/AsyncTCP |
+| `partitions.csv` | Flash partition table | 3MB×2 app slots, 1.875MB LittleFS (partition named `spiffs`), 20KB NVS |
+| `src/main.cpp` | Entry point, FreeRTOS tasks, trajectory walker | 6 tasks across 2 cores; walker at 100Hz hw timer; DJI rate-limited to 10Hz; WiFi AP with `WIFI_PS_NONE` (no modem sleep); WiFi event logging; guarded by `#ifndef NATIVE_TEST` |
 | `src/config.h` | Pin definitions, axis config, build profiles | 3 profiles: slider-only (1 axis), slider-servo (3), slider-dji (4, default); AxisType enum; AxisConfig struct |
 | `src/config.cpp` | Runtime axis config globals | Defines `g_axis_config` and `g_axis_count` from compile-time constants |
 | `src/commands.h` | Inter-task command/telemetry types | Command union with play/jog/move_to/home/scrub variants; TelemetryPoint struct |
@@ -28,8 +28,8 @@ ESP32-S3 firmware implementing the [Board API](../docs/project/board-api.md). Se
 | `src/trajectory.h/.cpp` | Trajectory storage, JSON parsing, interpolation | Points in PSRAM via ps_malloc; ArduinoJson parser; linear interp with binary search for scrub |
 | `src/stepper.h/.cpp` | FastAccelStepper wrapper, homing, limits | 80 steps/mm (GT2 20T, 1/16 microstep); 3-phase homing; limit switch ISR |
 | `src/display.h/.cpp` | Abstract display interface + implementations | OledDisplay (SH1107 128×128 I2C) and NullDisplay; auto-detect via I2C scan at 0x3C |
-| `src/telemetry.h/.cpp` | WebSocket telemetry broadcaster task | Reads from telemetry_queue, JSON serializes, broadcasts to all WS clients |
-| `src/web_server.h/.cpp` | REST endpoints + WebSocket handler | All Board API endpoints; CORS; command parsing → cmd_queue; settings in-memory (TODO: NVS) |
+| `src/telemetry.h/.cpp` | WebSocket telemetry broadcaster task | Reads from telemetry_queue; sends `{"evt":"position", "slide":..., "pan":...}` per Board API spec; broadcasts to all WS clients |
+| `src/web_server.h/.cpp` | REST endpoints + WebSocket handler | All Board API endpoints; CORS; connectivity probe handlers (Android/Apple/Windows); command parsing → cmd_queue; settings in-memory (TODO: NVS) |
 
 ## DJI CAN Library (`lib/dji_can/`)
 

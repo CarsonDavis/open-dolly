@@ -6,6 +6,7 @@
 #include <ESPmDNS.h>
 #include <LittleFS.h>
 #include <esp_mac.h>
+#include <esp_wifi.h>
 
 #include "config.h"
 #include "commands.h"
@@ -614,6 +615,30 @@ void setup() {
     g_state.trajectory_loaded = false;
     memset((void*)g_state.positions, 0, sizeof(g_state.positions));
 
+    // WiFi event logging
+    WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
+        switch (event) {
+            case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
+                Serial.printf("[WiFi] Client connected: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                    info.wifi_ap_staconnected.mac[0], info.wifi_ap_staconnected.mac[1],
+                    info.wifi_ap_staconnected.mac[2], info.wifi_ap_staconnected.mac[3],
+                    info.wifi_ap_staconnected.mac[4], info.wifi_ap_staconnected.mac[5]);
+                break;
+            case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
+                Serial.printf("[WiFi] Client disconnected: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                    info.wifi_ap_stadisconnected.mac[0], info.wifi_ap_stadisconnected.mac[1],
+                    info.wifi_ap_stadisconnected.mac[2], info.wifi_ap_stadisconnected.mac[3],
+                    info.wifi_ap_stadisconnected.mac[4], info.wifi_ap_stadisconnected.mac[5]);
+                break;
+            case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
+                Serial.printf("[WiFi] IP assigned to client\n");
+                break;
+            default:
+                Serial.printf("[WiFi] Event: %d\n", event);
+                break;
+        }
+    });
+
     // Start WiFi AP
     WiFi.mode(WIFI_AP);
     uint8_t mac[6];
@@ -623,6 +648,7 @@ void setup() {
     const char* ssid = nvs_get_string("ap_ssid", default_ssid);
     const char* password = nvs_get_string("ap_password", "opendolly");
     WiFi.softAP(ssid, password);
+    esp_wifi_set_ps(WIFI_PS_NONE);  // Disable modem sleep — prevents client disconnects
     Serial.printf("AP SSID: %s\n", ssid);
     Serial.printf("AP IP: %s\n", WiFi.softAPIP().toString().c_str());
 

@@ -21,6 +21,11 @@ dist/
 build/
 *.egg
 
+# PlatformIO
+firmware/.pio/
+firmware/data/
+firmware/test/*/test_runner
+
 # Windows binaries (DJI SDK reference, not needed for build)
 *.dll
 *.lib

@@ -406,7 +406,8 @@ static void parseWebSocketCommand(const char* data, size_t len, AsyncWebSocketCl
         command.type = CommandType::MOVE_TO;
         command.data.move_to.duration_ms = doc["duration_ms"] | 1000;
         for (int i = 0; i < g_axis_count; i++) {
-            command.data.move_to.axes[i] = doc[g_axis_config[i].name] | 0.0f;
+            // Default to current position for unspecified axes (not 0)
+            command.data.move_to.axes[i] = doc[g_axis_config[i].name] | g_state.positions[i];
         }
     }
     else if (strcmp(cmd, "home") == 0) {
@@ -479,10 +480,12 @@ static void onWebSocketEvent(AsyncWebSocket* server, AsyncWebSocketClient* clien
 // --- Server setup ---
 
 void setupWebServer() {
-    // Serve static files from LittleFS
-    server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+    // CORS headers (must be set before server.begin())
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
+    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // REST endpoints
+    // REST endpoints — registered BEFORE serveStatic so they take priority
     server.on("/api/status", HTTP_GET, handleGetStatus);
     server.on("/api/capabilities", HTTP_GET, handleGetCapabilities);
 
@@ -502,10 +505,39 @@ void setupWebServer() {
         request->send(204);
     });
 
-    // CORS headers for development
-    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
-    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
-    DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type");
+    // Connectivity probes — tell the OS "internet works" so it stays connected
+    // Android
+    server.on("/generate_204", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(204);
+    });
+    server.on("/gen_204", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(204);
+    });
+    // Apple
+    server.on("/hotspot-detect.html", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
+    });
+    server.on("/library/test/success.html", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
+    });
+    // Windows
+    server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/plain", "Microsoft Connect Test");
+    });
+    server.on("/ncsi.txt", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "text/plain", "Microsoft NCSI");
+    });
+
+    // Static files from LittleFS — LAST so API routes take priority
+    server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
+    // Log all unhandled requests (debug)
+    server.onNotFound([](AsyncWebServerRequest* request) {
+        Serial.printf("[HTTP] 404: %s %s (Host: %s)\n",
+            request->methodToString(), request->url().c_str(),
+            request->host().c_str());
+        request->send(404, "text/plain", "Not found");
+    });
 
     // WebSocket
     ws.onEvent(onWebSocketEvent);

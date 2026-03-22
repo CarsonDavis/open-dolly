@@ -33,5 +33,6 @@ void  stepperEmergencyStop();
 extern volatile bool g_limit_hit;
 
 #ifndef NATIVE_TEST
+#include <Arduino.h>
 void IRAM_ATTR onLimitSwitch();
 #endif
