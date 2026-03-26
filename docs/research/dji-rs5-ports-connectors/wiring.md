@@ -43,13 +43,14 @@ Looking into the RSA port on the gimbal:
 
 | Parameter | RS 2 (documented) | RS 5 (measured) |
 |-----------|-------------------|-----------------|
-| Baud rate | 1 Mbps | 1 Mbps (confirmed — TWAI driver connected at 1M) |
-| Gimbal TX ID | 0x222 | **0x426** |
-| Gimbal RX ID | 0x223 | **0x427** (assumed, untested) |
-| Heartbeat data | N/A | `55 45 04 DE E5 06 69 4B` (constant, ~fast rate) |
-| SDK frame header | 0xAA | TBD — heartbeat uses 0x55, SDK frames may still use 0xAA |
+| Baud rate | 1 Mbps | 1 Mbps (confirmed) |
+| SDK TX ID (to gimbal) | 0x223 | **0x223** (same as RS 2) |
+| SDK RX ID (from gimbal) | 0x222 | **0x222** (same as RS 2) |
+| SDK frame header | 0xAA | **0xAA** (same as RS 2) |
+| Heartbeat ID | N/A | **0x426** (new, RS 5 only) |
+| Heartbeat data | N/A | `55 45 04 DE E5 06 xx 54` + 56 bytes padding (~1 Hz) |
 
-**The RS 5 uses different CAN IDs than the RS 2.** The R SDK v2.5 documents CAN TX=0x222, RX=0x223 for the RS 2. The RS 5 broadcasts on **0x426**. The heartbeat frame starts with `0x55` (not `0xAA`), suggesting it may be a separate keep-alive layer. SDK protocol frames (starting with `0xAA`) may appear once we send an enable-push command on the correct TX ID.
+**The R SDK protocol works unchanged on the RS 5.** CAN IDs (0x222/0x223), frame format, and commands are identical to the RS 2. The RS 5 adds a separate heartbeat layer on CAN ID **0x426** (starts with `0x55`, runs independently). SDK telemetry push (CmdSet=0x0E, CmdID=0x08) confirmed working — returns 40-byte frames with attitude angles, joint angles, limits, and stiffness.
 
 ## CAN Bus Connection
 
