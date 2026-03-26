@@ -64,6 +64,34 @@ Tracking each experiment and results while bringing up R SDK communication with 
 - **Root cause of earlier failures:** CRC implementation was wrong. The test was using non-reflected CRC tables with init values from the PDF spec (CRC16 init=0xC55C, CRC32 init=0xC55C0000). The correct implementation uses reflected tables with init values CRC16=0x3AA3, CRC32=0x00003AA3, matching the Python demo code (SDKCRC.py).
 - **Key frame bytes:** `AA 1A 00 03 00 00 00 00 0D 00 7E 7E 0E 00 C2 01 00 00 00 00 01 14 84 24 DC CF`
 
+## Experiment 7: Confirm position control — Pan to -30°
+
+**Goal:** Verify position control is repeatable by commanding a different angle.
+**Setup:** Same as experiment 6, yaw=-300 (-30.0°).
+**Result:** SUCCESS — gimbal moved from 45° to -30°
+
+## Experiment 8: Pitch and roll control
+
+**Goal:** Verify pitch and roll axes respond to position commands.
+**Setup:** Cycle through pitch up 30°, pitch down 20°, roll right 15°, roll left 15°, return to center.
+**Result:** SUCCESS — all axes moved correctly and returned to center
+
+## Summary
+
+All R SDK commands tested and working on the DJI RS 5:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| CAN bus communication | Working | Same IDs as RS 2 (TX=0x223, RX=0x222) |
+| Enable telemetry push | Working | CmdSet=0x0E CmdID=0x07, returns 0x00 |
+| Telemetry parsing | Working | Attitude + joint angles, limits, stiffness |
+| Position control (yaw) | Working | Tested 45° and -30° |
+| Position control (pitch) | Working | Tested 30° and -20° |
+| Position control (roll) | Working | Tested ±15° |
+| Camera control | Untested | |
+
+The existing `dji_can` library in `firmware/lib/dji_can/` works with the RS 5 with zero code changes.
+
 ## Notes — RS 5 Angle Limits (physically tested)
 
 | Axis | Min | Max | Unit |
