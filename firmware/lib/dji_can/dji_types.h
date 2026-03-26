@@ -75,7 +75,7 @@ static constexpr size_t CAN_FRAME_MAX_DATA = 8;
 
 // Timing constants
 static constexpr uint32_t CONNECT_TIMEOUT_MS           = 3000;
-static constexpr uint32_t TELEMETRY_TIMEOUT_MS          = 500;
+static constexpr uint32_t TELEMETRY_TIMEOUT_MS          = 2000;
 static constexpr uint32_t RETRY_INTERVAL_MS             = 2000;
 static constexpr uint32_t MAX_RETRIES                   = 5;
 static constexpr uint32_t MIN_POSITION_CMD_INTERVAL_MS  = 100;

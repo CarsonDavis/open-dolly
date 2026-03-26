@@ -119,8 +119,9 @@ static void djiCanTask(void* param) {
     }
 }
 
-// Set DJI gimbal target position (called from trajectory walker)
-void setDjiTarget(const float* interpolated, uint8_t time_for_action) {
+// Set DJI gimbal target position
+// duration_ms: how long the gimbal should take to reach the position
+void setDjiTarget(const float* interpolated, uint32_t duration_ms) {
     if (djiGimbal.getState() != dji::GimbalState::ACTIVE) return;
 
     float pan = 0, tilt = 0, roll = 0;
@@ -131,7 +132,7 @@ void setDjiTarget(const float* interpolated, uint8_t time_for_action) {
             else if (strcmp(g_axis_config[i].name, "roll") == 0) roll = interpolated[i];
         }
     }
-    djiGimbal.setPosition(pan, tilt, roll, (uint16_t)time_for_action * 100);
+    djiGimbal.setPosition(pan, tilt, roll, (uint16_t)duration_ms);
 }
 
 // Trigger DJI camera action
@@ -217,8 +218,7 @@ void scrubToTime(uint32_t t_ms) {
     // Update position
     setStepperTarget(interpolated[AXIS_SLIDE]);
     #ifndef BUILD_SLIDER_ONLY
-    static const uint8_t DJI_CMD_INTERVAL_TICKS = 10;
-    setDjiTarget(interpolated, 1);
+    setDjiTarget(interpolated, 500);
     #endif
 
     // Update shared state
@@ -314,7 +314,8 @@ static void trajectoryWalkerTask(void* param) {
         dji_divider++;
         if (dji_divider >= DJI_CMD_INTERVAL_TICKS) {
             dji_divider = 0;
-            setDjiTarget(interpolated, 1);
+            // Give the gimbal enough time to reach the next position (~500ms between updates)
+            setDjiTarget(interpolated, 500);
         }
         #endif
 
@@ -367,12 +368,12 @@ void applyJogDelta(int axis_index, float delta) {
     }
     #ifndef BUILD_SLIDER_ONLY
     else if (g_axis_config[axis_index].type == AxisType::DJI_CAN) {
-        // Build current target from all DJI axes and send
+        // Build current target from all DJI axes and send with 500ms duration
         float positions[MAX_AXES];
         xSemaphoreTake(g_state_mutex, portMAX_DELAY);
         memcpy(positions, (void*)g_state.positions, sizeof(float) * g_axis_count);
         xSemaphoreGive(g_state_mutex);
-        setDjiTarget(positions, 1);
+        setDjiTarget(positions, 500);
     }
     #endif
 
@@ -407,6 +408,12 @@ void executeMoveToCmd(const float* targets, uint32_t duration_ms) {
     }
     move_to_duration_ms = duration_ms;
     move_to_start_ms = millis();
+
+    // Send a single DJI position command with the full duration — let the
+    // gimbal handle smooth motion internally instead of micro-updating.
+    #ifndef BUILD_SLIDER_ONLY
+    setDjiTarget(move_to_target, duration_ms);
+    #endif
 }
 
 void executeHomeCmd(uint8_t axis_mask) {
@@ -458,22 +465,21 @@ static void motionControlTask(void* param) {
 
             setStepperTarget(interpolated[AXIS_SLIDE]);
 
-            #ifndef BUILD_SLIDER_ONLY
-            move_to_dji_divider++;
-            if (move_to_dji_divider >= 10) {
-                move_to_dji_divider = 0;
-                setDjiTarget(interpolated, 1);
-            }
-            #endif
+            // DJI axes: don't micro-update — we sent a single command with
+            // the full duration in executeMoveToCmd. Just update state positions
+            // from telemetry feedback (handled by onAttitudeUpdate callback).
 
             xSemaphoreTake(g_state_mutex, portMAX_DELAY);
-            memcpy((void*)g_state.positions, interpolated, sizeof(float) * g_axis_count);
+            // For stepper axis, update from interpolation; DJI axes get updated by telemetry
+            g_state.positions[AXIS_SLIDE] = interpolated[AXIS_SLIDE];
             xSemaphoreGive(g_state_mutex);
 
             // Push telemetry
             TelemetryPoint telem;
             telem.t_ms = 0;
-            memcpy(telem.axes, interpolated, sizeof(float) * g_axis_count);
+            xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+            memcpy(telem.axes, (void*)g_state.positions, sizeof(float) * g_axis_count);
+            xSemaphoreGive(g_state_mutex);
             xQueueSend(telemetry_queue, &telem, 0);
 
             if (ratio >= 1.0f) {
