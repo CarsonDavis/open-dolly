@@ -393,6 +393,12 @@ static float move_to_target[MAX_AXES];
 static uint32_t move_to_duration_ms = 0;
 static uint32_t move_to_start_ms = 0;
 
+// Pre-roll: move to trajectory start before playing
+static bool preroll_pending = false;
+static uint32_t preroll_pause_start_ms = 0;
+static const uint32_t PREROLL_PAUSE_MS = 1000;
+static float preroll_tolerance_deg = 1.5f;  // close enough to start playing
+
 void executeMoveToCmd(const float* targets, uint32_t duration_ms) {
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     memcpy(move_to_start, (void*)g_state.positions, sizeof(float) * g_axis_count);
@@ -452,6 +458,20 @@ static void motionControlTask(void* param) {
             stopAllMotion();
         }
 
+        // Pre-roll settle pause — wait 1s after arriving at start, then play
+        if (g_state.current_state == State::MOVING && preroll_pending && preroll_pause_start_ms > 0) {
+            if (millis() - preroll_pause_start_ms >= PREROLL_PAUSE_MS) {
+                preroll_pending = false;
+                preroll_pause_start_ms = 0;
+                if (changeState(State::PLAYING)) {
+                    Serial.println("Pre-roll done, starting playback");
+                    startPlayback();
+                } else {
+                    changeState(State::IDLE);
+                }
+            }
+        }
+
         // Process move_to interpolation if in MOVING state
         if (g_state.current_state == State::MOVING && move_to_duration_ms > 0) {
             uint32_t elapsed = millis() - move_to_start_ms;
@@ -484,7 +504,13 @@ static void motionControlTask(void* param) {
 
             if (ratio >= 1.0f) {
                 move_to_duration_ms = 0;
-                changeState(State::IDLE);
+                if (preroll_pending) {
+                    // Pre-roll move complete — start the settle pause
+                    preroll_pause_start_ms = millis();
+                    Serial.println("Pre-roll arrived, settling 1s...");
+                } else {
+                    changeState(State::IDLE);
+                }
             }
         }
 
@@ -494,8 +520,35 @@ static void motionControlTask(void* param) {
                 case CommandType::PLAY:
                     if (g_state.trajectory_loaded &&
                         strcmp(cmd.data.play.trajectory_id, g_state.trajectory_id) == 0) {
-                        if (changeState(State::PLAYING)) {
-                            startPlayback();
+                        // Check if we're already at the trajectory start position
+                        bool at_start = true;
+                        if (g_trajectory.point_count > 0) {
+                            xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+                            for (int i = 0; i < g_axis_count; i++) {
+                                float diff = g_state.positions[i] - g_trajectory.points[0].axes[i];
+                                if (diff < 0) diff = -diff;
+                                // Use appropriate tolerance per axis type
+                                float tol = (g_axis_config[i].type == AxisType::STEPPER) ? 5.0f : preroll_tolerance_deg;
+                                if (diff > tol) {
+                                    at_start = false;
+                                    break;
+                                }
+                            }
+                            xSemaphoreGive(g_state_mutex);
+                        }
+
+                        if (at_start) {
+                            // Already at start — play immediately
+                            if (changeState(State::PLAYING)) {
+                                startPlayback();
+                            }
+                        } else {
+                            // Move to start position first, then play
+                            if (changeState(State::MOVING)) {
+                                preroll_pending = true;
+                                executeMoveToCmd(g_trajectory.points[0].axes, 2000);
+                                Serial.println("Pre-roll: moving to trajectory start");
+                            }
                         }
                     }
                     break;
@@ -513,6 +566,7 @@ static void motionControlTask(void* param) {
                     break;
 
                 case CommandType::STOP:
+                    preroll_pending = false;
                     if (changeState(State::IDLE)) {
                         stopPlayback();
                         stopAllMotion();

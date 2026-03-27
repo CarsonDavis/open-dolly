@@ -29,7 +29,7 @@ static const bool TRANSITIONS[STATE_COUNT][STATE_COUNT] = {
     /* PLAY */  { true,  false, true,  false, false, true  },
     /* PAUS */  { true,  true,  false, false, false, true  },
     /* HOME */  { true,  false, false, false, false, true  },
-    /* MOVE */  { true,  false, false, false, true,  true  },
+    /* MOVE */  { true,  true,  false, false, true,  true  },
     /* ERR  */  { true,  false, false, false, false, false },
 };
 
