@@ -83,3 +83,4 @@ The detailed experiment-by-experiment log is at [gimbal-debugging.md](../../docs
 | [`telemetry-reader/`](telemetry-reader/) | [README](telemetry-reader/README.md) | Enable-push + decoded telemetry |
 | [`position-control/`](position-control/) | [README](position-control/README.md) | Absolute position commands on all axes |
 | [`tlv-scanner/`](tlv-scanner/) | [README](tlv-scanner/README.md) | TLV parameter reader for reverse-engineering |
+| [`push-mode-writer/`](push-mode-writer/) | [README](push-mode-writer/README.md) | Toggle push pan/tilt via undocumented TLV writes |
