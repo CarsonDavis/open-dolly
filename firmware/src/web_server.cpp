@@ -437,6 +437,20 @@ static void parseWebSocketCommand(const char* data, size_t len, AsyncWebSocketCl
         client->text(buf);
         return;
     }
+    else if (strcmp(cmd, "clear_error") == 0) {
+        command.type = CommandType::CLEAR_ERROR;
+    }
+    else if (strcmp(cmd, "disable") == 0) {
+        command.type = CommandType::DISABLE;
+    }
+    else if (strcmp(cmd, "restart") == 0) {
+        // Nuclear option — reboot the ESP32. WS client will drop.
+        // No queue, no state change: just ack and reset.
+        Serial.println("Restart requested via WS — rebooting");
+        delay(50);
+        ESP.restart();
+        return; // unreached
+    }
     else {
         sendError(client, "UNKNOWN_CMD", cmd);
         return;

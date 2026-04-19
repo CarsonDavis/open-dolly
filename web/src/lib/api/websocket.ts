@@ -146,6 +146,18 @@ export class BoardWebSocket {
 		this.send({ cmd: 'home', axes });
 	}
 
+	sendClearError(): void {
+		this.send({ cmd: 'clear_error' });
+	}
+
+	sendDisable(): void {
+		this.send({ cmd: 'disable' });
+	}
+
+	sendRestart(): void {
+		this.send({ cmd: 'restart' });
+	}
+
 	private dispatch(data: Record<string, unknown>): void {
 		switch (data.evt) {
 			case 'position':

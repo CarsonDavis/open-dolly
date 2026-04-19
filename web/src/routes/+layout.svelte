@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import BringupToolbar from '../components/BringupToolbar.svelte';
 	import CapabilitiesProvider from '../components/CapabilitiesProvider.svelte';
 	import StatusBar from '../components/StatusBar.svelte';
 	import type { Snippet } from 'svelte';
@@ -14,6 +15,7 @@
 <CapabilitiesProvider>
 	<div class="app-shell">
 		<StatusBar />
+		<BringupToolbar />
 		<main class="app-content">
 			{@render children()}
 		</main>

@@ -19,7 +19,8 @@ enum class CommandType : uint8_t {
     MOVE_TO,
     HOME,
     SCRUB,
-    CLEAR_ERROR
+    CLEAR_ERROR,
+    DISABLE
 };
 
 struct Command {

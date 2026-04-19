@@ -61,6 +61,21 @@ export interface SimulateErrorCommand {
   axis?: string;
 }
 
+/** Clear a latched ERROR state back to IDLE. No-op if not in ERROR. */
+export interface ClearErrorCommand {
+  cmd: "clear_error";
+}
+
+/** De-energize all motor coils (stepperDisable). Does not change state. */
+export interface DisableCommand {
+  cmd: "disable";
+}
+
+/** Reboot the controller (ESP.restart). WS connection will drop. */
+export interface RestartCommand {
+  cmd: "restart";
+}
+
 /** Union of all WebSocket client → board commands. */
 export type WsCommand =
   | PlayCommand
@@ -72,7 +87,10 @@ export type WsCommand =
   | MoveToCommand
   | HomeCommand
   | PingCommand
-  | SimulateErrorCommand;
+  | SimulateErrorCommand
+  | ClearErrorCommand
+  | DisableCommand
+  | RestartCommand;
 
 // ---------------------------------------------------------------------------
 // Board → Client events

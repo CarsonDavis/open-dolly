@@ -617,6 +617,13 @@ static void motionControlTask(void* param) {
                         changeState(State::IDLE);
                     }
                     break;
+
+                case CommandType::DISABLE:
+                    // De-energize motor coils (useful between bring-up tests
+                    // to cool the driver). State unchanged — user's call whether
+                    // to follow up with a re-home.
+                    stepperDisable();
+                    break;
             }
         }
     }

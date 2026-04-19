@@ -105,6 +105,19 @@ export function registerWebSocket(
           return;
         }
 
+        // clear_error / disable / restart are valid from any state (bring-up aids).
+        if (cmd === "clear_error") {
+          handleClearError();
+          return;
+        }
+        if (cmd === "disable") {
+          return; // mock is a no-op — real firmware cuts coil power
+        }
+        if (cmd === "restart") {
+          socket.close();
+          return;
+        }
+
         // Validate command against current state
         const state = boardState.state;
         if (!VALID_COMMANDS[state]?.has(cmd)) {
@@ -170,6 +183,12 @@ export function registerWebSocket(
   function handleResume(): void {
     boardState.transition("playing");
     motion.resume();
+  }
+
+  function handleClearError(): void {
+    if (boardState.state === "error") {
+      boardState.transition("idle");
+    }
   }
 
   function handleStop(): void {
