@@ -53,9 +53,10 @@ void stepperInit() {
     pinMode(PIN_EN, OUTPUT);
     stepperDisable();
 
-    // Limit switches — active LOW with internal pullup
-    pinMode(PIN_LIMIT_MIN, INPUT_PULLUP);
-    pinMode(PIN_LIMIT_MAX, INPUT_PULLUP);
+    // Limit switches — NC fail-safe wiring: HIGH at rest (NC closed → 3V3),
+    // LOW on trigger or wire break (pulldown). See docs/project/slider-wiring.md §3.4.
+    pinMode(PIN_LIMIT_MIN, INPUT_PULLDOWN);
+    pinMode(PIN_LIMIT_MAX, INPUT_PULLDOWN);
     attachInterrupt(digitalPinToInterrupt(PIN_LIMIT_MIN), onLimitSwitch, FALLING);
     attachInterrupt(digitalPinToInterrupt(PIN_LIMIT_MAX), onLimitSwitch, FALLING);
 

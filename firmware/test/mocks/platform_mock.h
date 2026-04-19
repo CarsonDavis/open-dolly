@@ -62,6 +62,7 @@ extern MockSerial Serial;
 
 // GPIO stubs
 #define INPUT_PULLUP 0x05
+#define INPUT_PULLDOWN 0x09
 #define HIGH 1
 #define LOW 0
 #define FALLING 2

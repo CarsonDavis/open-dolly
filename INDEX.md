@@ -14,6 +14,7 @@
 | Linear motion system design | `docs/research/long-travel-linear-motion/report.md` |
 | Linear guide rail and extrusion selection | `docs/research/linear-guide-system/report.md` |
 | Slider electrical bring-up (wiring + firmware tweaks) | `docs/project/slider-wiring.md` |
+| What's been confirmed-done on hardware (reverse-chronological) | `docs/project/devlog.md` |
 | KiCad schematic + breadboard-reference walkthrough | `hardware/kicad/slider/README.md` |
 | AI object tracking system | `ai-tracking/README.md`, `docs/research/ai-object-tracking/report.md` |
 | Sony camera control integration | `sony-control/VERIFIED-REFERENCE.md`, `docs/research/sony-camera-control/report.md` |
